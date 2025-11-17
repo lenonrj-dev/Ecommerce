@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mercadopago/sdk-react": "^1.0.4",
     "@tailwindcss/vite": "^4.0.9",
     "axios": "^1.8.1",
     "framer-motion": "^12.23.9",

@@ -1,4 +1,3 @@
-// src/Components/CategoryHighlights.jsx
 import { useState, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -45,7 +44,9 @@ export default function CategoryHighlights({ items = [] }) {
     if (!el) return;
     const firstCard = el.querySelector("article");
     const gap = parseFloat(getComputedStyle(el).columnGap || "0");
-    const w = firstCard ? firstCard.getBoundingClientRect().width : el.clientWidth * 0.8;
+    const w = firstCard
+      ? firstCard.getBoundingClientRect().width
+      : el.clientWidth * 0.8;
     el.scrollBy({ left: dir * (w + gap), behavior: "smooth" });
   }
 
@@ -76,13 +77,37 @@ export default function CategoryHighlights({ items = [] }) {
         viewport={{ once: true, amount: 0.2 }}
         className="mx-auto max-w-screen-xl"
       >
+        {/* Cabeçalho da seção */}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-semibold text-neutral-900">
+              Categorias em destaque
+            </h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Explore as peças mais queridas da loja fitness com{" "}
+              <span className="font-semibold text-emerald-600">
+                descontos especiais
+              </span>{" "}
+              em cada categoria.
+            </p>
+          </div>
+          <Link
+            to="/outlet"
+            className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-900 shadow-sm hover:border-neutral-300 hover:shadow-md transition"
+          >
+            Ver todas as ofertas
+          </Link>
+        </div>
+
         <div className="relative">
           <button
             type="button"
             aria-label="Anterior"
             onClick={() => scrollByCards(-1)}
             disabled={atStart}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full border border-neutral-200/60 bg-white/80 backdrop-blur shadow-sm flex items-center justify-center transition ${atStart ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full border border-neutral-200/60 bg-white/90 backdrop-blur shadow-sm flex items-center justify-center transition ${
+              atStart ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
+            }`}
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-neutral-800" />
           </button>
@@ -103,18 +128,21 @@ export default function CategoryHighlights({ items = [] }) {
                 key={i}
                 variants={item}
                 className="
-                  snap-start shrink-0
+                  snap-start shrink-0 h-full
                   basis-full
                   sm:basis-[calc((100%-24px)/2)]
                   md:basis-[calc((100%-32px)/2)]
                   lg:basis-[calc((100%-96px)/4)]
-                  group relative overflow-hidden rounded-2xl bg-white
-                  ring-1 ring-black/5 shadow-sm transition
-                  will-change-transform transform-gpu
-                  hover:shadow-lg focus-within:shadow-lg
+                  group
                 "
               >
-                <CategoryCardLink href={c.href} title={c.title} image={c.image} />
+                <CategoryCardLink
+                  href={c.href}
+                  title={c.title}
+                  image={c.image}
+                  discount={c.discount}
+                  isBlackFriday={c.isBlackFriday}
+                />
               </motion.article>
             ))}
           </div>
@@ -124,7 +152,9 @@ export default function CategoryHighlights({ items = [] }) {
             aria-label="Próximo"
             onClick={() => scrollByCards(1)}
             disabled={atEnd}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full border border-neutral-200/60 bg-white/80 backdrop-blur shadow-sm flex items-center justify-center transition ${atEnd ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full border border-neutral-200/60 bg-white/90 backdrop-blur shadow-sm flex items-center justify-center transition ${
+              atEnd ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
+            }`}
           >
             <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-neutral-800" />
           </button>
@@ -134,8 +164,15 @@ export default function CategoryHighlights({ items = [] }) {
   );
 }
 
-function CategoryCardLink({ href, title, image }) {
+function CategoryCardLink({ href, title, image, discount, isBlackFriday }) {
   const [loaded, setLoaded] = useState(false);
+
+  const showDiscount = typeof discount === "number" && discount > 0;
+  const subtitle = showDiscount
+    ? `Até ${discount}% OFF em peças selecionadas`
+    : isBlackFriday
+    ? "Ofertas especiais por tempo limitado"
+    : "Clique para ver as peças da categoria";
 
   return (
     <Link
@@ -147,54 +184,90 @@ function CategoryCardLink({ href, title, image }) {
       "
       aria-label={title}
     >
-      <div className="relative overflow-hidden">
-        <div
-          aria-hidden="true"
-          className={[
-            "absolute inset-0",
-            "bg-[linear-gradient(100deg,rgba(0,0,0,0.06)_20%,rgba(0,0,0,0.1)_40%,rgba(0,0,0,0.06)_60%)]",
-            "bg-[length:200%_100%] animate-[shimmer_1.2s_ease_infinite]",
-            loaded ? "opacity-0" : "opacity-100",
-          ].join(" ")}
-        />
-        <style>{`
-          @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-          }
-        `}</style>
+      <motion.div
+        whileHover={{ y: -4, scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 260, damping: 22 }}
+        className="flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-sm transition-shadow duration-300 group hover:shadow-lg"
+      >
+        <div className="relative overflow-hidden">
+          {/* Badge de desconto no topo da imagem */}
+          {showDiscount && (
+            <div className="pointer-events-none absolute top-3 left-3 z-20 rounded-full border border-black/5 bg-white/95 px-3 py-1 shadow-md">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-900">
+                Até {discount}% OFF
+              </span>
+            </div>
+          )}
 
-        <motion.figure
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="aspect-[4/3] md:aspect-[16/9] h-120 w-full overflow-hidden"
-        >
-          <img
-            src={image}
-            alt={title}
-            loading="lazy"
-            onLoad={() => setLoaded(true)}
+          {/* Skeleton de carregamento */}
+          <div
+            aria-hidden="true"
             className={[
-              "h-120 w-full object-cover",
-              "transition-opacity duration-500",
-              "group-hover:scale-[1.03] will-change-transform",
-              loaded ? "opacity-100" : "opacity-0",
+              "absolute inset-0 z-10",
+              "bg-[linear-gradient(100deg,rgba(0,0,0,0.06)_20%,rgba(0,0,0,0.1)_40%,rgba(0,0,0,0.06)_60%)]",
+              "bg-[length:200%_100%] animate-[shimmer_1.2s_ease_infinite]",
+              loaded ? "opacity-0" : "opacity-100",
             ].join(" ")}
           />
-        </motion.figure>
+          <style>{`
+            @keyframes shimmer {
+              0% { background-position: 200% 0; }
+              100% { background-position: -200% 0; }
+            }
+          `}</style>
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/5 to-transparent" />
-      </div>
+          <motion.figure
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            // 🔥 Ratio mais vertical para mostrar melhor a peça
+            className="aspect-[3/4] w-full overflow-hidden"
+          >
+            <img
+              src={image}
+              alt={title}
+              loading="lazy"
+              onLoad={() => setLoaded(true)}
+              className={[
+                "w-full h-full object-cover",
+                "transition-opacity duration-500",
+                "group-hover:scale-[1.04] will-change-transform",
+                loaded ? "opacity-100" : "opacity-0",
+              ].join(" ")}
+            />
+          </motion.figure>
 
-      <motion.div
-        initial={{ y: 6, opacity: 0.95 }}
-        whileHover={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="p-4 sm:p-5"
-      >
-        <p className="text-base md:text-lg font-semibold tracking-tight text-neutral-900">
-          {title}
-        </p>
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/25 via-black/5 to-transparent" />
+        </div>
+
+        {/* Bloco de texto / CTA */}
+        <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
+          <div>
+            <p className="text-base md:text-lg font-semibold tracking-tight text-neutral-900">
+              {title}
+            </p>
+            <p className="mt-1 text-xs sm:text-sm text-neutral-600">
+              {subtitle}
+            </p>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between text-xs sm:text-sm">
+            <span
+              className="
+                inline-flex items-center gap-1 rounded-full bg-neutral-900
+                px-3 py-1 font-semibold uppercase tracking-[0.16em]
+                text-white shadow-sm group-hover:bg-black
+              "
+            >
+              Ver categoria <span aria-hidden>→</span>
+            </span>
+
+            {showDiscount && (
+              <span className="text-[11px] font-semibold text-emerald-600">
+                Destaque em oferta
+              </span>
+            )}
+          </div>
+        </div>
       </motion.div>
     </Link>
   );
