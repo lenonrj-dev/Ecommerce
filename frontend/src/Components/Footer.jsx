@@ -1,18 +1,10 @@
 import { assets } from '../assets/assets';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 
 const Footer = () => {
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth',
-    });
-  };
-
   return (
     <footer className="mt-40 bg-gray-50 text-gray-700 px-6 sm:px-12 md:px-20 py-12">
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -32,7 +24,7 @@ const Footer = () => {
   <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Empresa</h3>
   <ul className="space-y-2 text-sm sm:text-base text-gray-600">
     {['Início', 'Sobre Nós', 'Entrega', 'Política de Privacidade'].map((item, index) => (
-      <motion.li
+      <Motion.li
         key={index}
         onClick={() => {
           if (item === 'Início') {
@@ -50,7 +42,7 @@ const Footer = () => {
         className="cursor-pointer hover:text-black transition-colors"
       >
         {item}
-      </motion.li>
+      </Motion.li>
     ))}
   </ul>
 </div>
@@ -63,10 +55,10 @@ const Footer = () => {
             <li className="hover:text-black transition-colors">suporte.marima.loja@gmail.com</li>
           </ul>
         </div>
-      </motion.div>
+      </Motion.div>
 
       {/* Linha e direitos */}
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.3 }}
@@ -76,7 +68,7 @@ const Footer = () => {
         <p className="text-center text-xs sm:text-sm py-5 text-gray-500">
           © 2025 Marima — Todos os Direitos Reservados
         </p>
-      </motion.div>
+      </Motion.div>
     </footer>
   );
 };

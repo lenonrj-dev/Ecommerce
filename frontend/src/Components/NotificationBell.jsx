@@ -1,8 +1,8 @@
 // src/components/NotificationBell.jsx
 "use client";
-import { useEffect, useRef, useState, useContext, useMemo } from "react";
+import { useEffect, useRef, useState, useContext, useMemo, useCallback } from "react";
 import { ShopContext } from "../Context/ShopContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 /* -------------------------------- Utils -------------------------------- */
 const timeAgo = (iso) => {
@@ -159,7 +159,7 @@ function PanelInner({
                 const displayBody = personalizeLocal(n.body || "", currentName);
 
                 return (
-                  <motion.li
+                  <Motion.li
                     key={n._id}
                     layout
                     initial={{ opacity: 0, y: 6 }}
@@ -239,7 +239,7 @@ function PanelInner({
                         )}
                       </div>
                     </div>
-                  </motion.li>
+                  </Motion.li>
                 );
               })}
             </ul>
@@ -292,7 +292,10 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
 
   const ref = useRef(null);
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const headers = token ? { Authorization: `Bearer ${token}`, token } : {};
+  const headers = useMemo(
+    () => (token ? { Authorization: `Bearer ${token}`, token } : {}),
+    [token]
+  );
 
   // Nome do usuário (para personalizar {name} na UI também)
   const localName =
@@ -304,7 +307,7 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
   const filtered = useMemo(() => (tab === "unread" ? items.filter((n) => !n.readAt) : items), [items, tab]);
 
   // Carrega notificações (com fallback para contar "unread" localmente)
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!isLoggedIn) return;
     try {
       setLoading(true);
@@ -334,11 +337,11 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoggedIn, backendUrl, headers]);
 
   useEffect(() => {
     load();
-  }, [isLoggedIn, backendUrl]);
+  }, [load]);
 
   // Auto refresh eventual + quando volta ao foco
   useEffect(() => {
@@ -349,7 +352,7 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
       clearInterval(iv);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, []); // eslint-disable-line
+  }, [load]);
 
   // Fechar ao clicar fora / tecla ESC
   useEffect(() => {
@@ -467,7 +470,7 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
         {open && (
           <>
             {/* MOBILE: backdrop */}
-            <motion.div
+            <Motion.div
               className="fixed inset-0 z-[60] sm:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -476,7 +479,7 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
               style={{ background: "rgba(0,0,0,0.45)" }}
             />
             {/* MOBILE: sheet */}
-            <motion.div
+            <Motion.div
               role="dialog"
               aria-modal="true"
               className="fixed inset-x-0 bottom-0 top-[20vh] sm:hidden z-[61] rounded-t-3xl bg-white shadow-[0_-20px_60px_rgba(0,0,0,0.25)]"
@@ -499,10 +502,10 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
                 onClose={() => setOpen(false)}
                 currentName={localName}
               />
-            </motion.div>
+            </Motion.div>
 
             {/* DESKTOP/TABLET: popover */}
-            <motion.div
+            <Motion.div
               role="dialog"
               aria-modal="true"
               className="absolute right-0 mt-3 hidden sm:block w-[min(92vw,560px)] lg:w-[520px] max-h-[75vh] overflow-hidden rounded-3xl bg-white border border-gray-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.35)] z-50"
@@ -524,7 +527,7 @@ export default function NotificationBell({ variant = "icon", className = "" }) {
                 onClose={() => setOpen(false)}
                 currentName={localName}
               />
-            </motion.div>
+            </Motion.div>
           </>
         )}
       </AnimatePresence>

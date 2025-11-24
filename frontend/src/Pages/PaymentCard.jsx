@@ -1,6 +1,6 @@
 // src/pages/PaymentCard.jsx
 import { useContext, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import { ShopContext } from "../Context/ShopContext";
 import Title from "../Components/Title";
@@ -44,15 +44,15 @@ const PaymentCard = () => {
     <div className="bg-white">
       {/* se seu layout já renderiza Navbar/Footer globalmente, esta página já fica integrada */}
       <div className="max-w-screen-xl mx-auto px-5 sm:px-10 lg:px-20 py-12">
-        <motion.div {...fadeUp(0.05)} className="text-center">
+        <Motion.div {...fadeUp(0.05)} className="text-center">
           <Title text1="OBRIGADO PELA" text2="COMPRA" />
           <p className="mt-3 text-neutral-600 max-w-2xl mx-auto">
             Recebemos o seu pedido e o pagamento foi <strong>aprovado</strong>.
             Enviamos a confirmação para o seu e-mail.
           </p>
-        </motion.div>
+        </Motion.div>
 
-        <motion.div
+        <Motion.div
           {...fadeUp(0.1)}
           className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6"
         >
@@ -110,7 +110,7 @@ const PaymentCard = () => {
               </p>
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
       </div>
     </div>
   );

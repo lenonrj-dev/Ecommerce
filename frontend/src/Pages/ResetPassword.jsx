@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { toast } from "react-toastify";
 
 const ResetPassword = () => {
@@ -45,7 +45,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <motion.form
+    <Motion.form
       onSubmit={handleSubmit}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
@@ -53,7 +53,7 @@ const ResetPassword = () => {
       className="max-w-md w-full px-6 py-10 mt-16 mx-auto bg-white rounded-lg shadow-md flex flex-col gap-5 text-gray-800"
     >
       {/* Título */}
-      <motion.div
+      <Motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 0.4 }}
@@ -61,7 +61,7 @@ const ResetPassword = () => {
       >
         <h2 className="text-2xl font-semibold tracking-wide">Redefinir Senha</h2>
         <hr className="h-[2px] w-10 bg-gray-800 border-none" />
-      </motion.div>
+      </Motion.div>
 
       {/* Campos */}
       <div className="flex flex-col gap-4">
@@ -85,14 +85,14 @@ const ResetPassword = () => {
       </div>
 
       {/* Botão */}
-      <motion.button
+      <Motion.button
         whileTap={{ scale: 0.97 }}
         type="submit"
         className="bg-black hover:bg-gray-900 text-white font-medium py-2.5 rounded-lg w-full transition"
         disabled={loading}
       >
         {loading ? "Salvando..." : "Salvar nova senha"}
-      </motion.button>
+      </Motion.button>
 
       {/* Link Voltar */}
       <div className="text-sm text-gray-600 text-center">
@@ -104,7 +104,7 @@ const ResetPassword = () => {
           Voltar ao login
         </button>
       </div>
-    </motion.form>
+    </Motion.form>
   );
 };
 

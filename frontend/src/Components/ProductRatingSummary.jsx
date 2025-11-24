@@ -29,7 +29,9 @@ export default function ProductRatingSummary({ productId, backendUrl }) {
           setAvg(d.avgRating || 0);
           setTotal(d.total || 0);
         }
-      } catch {}
+      } catch (error) {
+        console.error("Erro ao carregar avaliações:", error);
+      }
     })();
     return () => { active = false; };
   }, [productId, backendUrl]);

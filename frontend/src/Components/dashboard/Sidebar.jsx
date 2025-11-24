@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { User, RefreshCcw, LogOut, Menu, X, Heart, MapPin } from "lucide-react";
 
@@ -54,7 +54,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
       <AnimatePresence>
         {(!isMobile || isOpen) && (
-          <motion.aside
+          <Motion.aside
             key="sidebar"
             initial="hidden"
             animate="visible"
@@ -64,19 +64,19 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             aria-label="Painel de controle do cliente"
           >
             {/* Cabeçalho */}
-            <motion.h2
+            <Motion.h2
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
               className="font-extrabold text-xl mb-8 text-gray-900 select-none tracking-tight"
             >
               Painel do Cliente
-            </motion.h2>
+            </Motion.h2>
 
             {/* Navegação */}
             <nav className="space-y-2 flex-1">
               {menuItems.map((item) => (
-                <motion.button
+                <Motion.button
                   key={item.id}
                   whileHover={{ scale: 1.04, x: 4 }}
                   whileTap={{ scale: 0.97 }}
@@ -93,12 +93,12 @@ export default function Sidebar({ activeTab, setActiveTab }) {
                 >
                   {item.icon}
                   {item.label}
-                </motion.button>
+                </Motion.button>
               ))}
             </nav>
 
             {/* Botão sair */}
-            <motion.button
+            <Motion.button
               whileHover={{ scale: 1.03, backgroundColor: "#111", color: "#fff" }}
               whileTap={{ scale: 0.97 }}
               onClick={handleLogout}
@@ -107,8 +107,8 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             >
               <LogOut size={18} />
               Sair
-            </motion.button>
-          </motion.aside>
+            </Motion.button>
+          </Motion.aside>
         )}
       </AnimatePresence>
     </>

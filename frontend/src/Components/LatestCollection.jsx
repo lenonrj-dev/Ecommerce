@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import Title from '../Components/Title';
 import ProductItem from '../Components/ProductItem';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 
 const LatestCollection = () => {
   const { products } = useContext(ShopContext);
@@ -15,7 +15,7 @@ const LatestCollection = () => {
   return (
     <section className="py-12 px-4 sm:px-6 lg:px-16 bg-white">
       {/* Título */}
-      <motion.div
+      <Motion.div
         className="text-center mb-10"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -25,10 +25,10 @@ const LatestCollection = () => {
         <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-gray-600">
           Selecionamos o melhor da moda com estilo e conforto para você se sentir incrível.
         </p>
-      </motion.div>
+      </Motion.div>
 
       {/* Produtos */}
-      <motion.div
+      <Motion.div
         className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
         initial="hidden"
         animate="visible"
@@ -41,7 +41,7 @@ const LatestCollection = () => {
         }}
       >
         {latestProducts.map((product) => (
-          <motion.div
+          <Motion.div
             key={product._id}
             variants={{
               hidden: { opacity: 0, y: 20 },
@@ -49,16 +49,10 @@ const LatestCollection = () => {
             }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
           >
-            <ProductItem
-              id={product._id}
-              image={product.image}
-              name={product.name}
-              price={product.price}
-              yampiLink={product.yampiLink}
-            />
-          </motion.div>
+            <ProductItem product={product} />
+          </Motion.div>
         ))}
-      </motion.div>
+      </Motion.div>
     </section>
   );
 };

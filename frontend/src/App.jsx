@@ -28,7 +28,7 @@ import useNotifAnalytics from "./hooks/useNotifAnalytics";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion as Motion } from "framer-motion";
 
 import { ShopContext } from "./Context/ShopContext";
 
@@ -57,7 +57,7 @@ export default function App() {
     <>
       <AnimatePresence mode="wait">
         {showGoogleLoader ? (
-          <motion.div
+          <Motion.div
             key="google-loader"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -65,7 +65,7 @@ export default function App() {
             transition={{ duration: 0.5 }}
           >
             <GoogleLoader />
-          </motion.div>
+          </Motion.div>
         ) : (
           <div className="px-4 sm:px-[5vw] md:px:[7vw] lg:px-[9vw]">
             <ToastContainer />

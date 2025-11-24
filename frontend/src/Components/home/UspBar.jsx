@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 import { Truck, RefreshCcw, Shield, CreditCard } from "lucide-react";
 
 const ICONS = { Truck, RefreshCcw, Shield, CreditCard };
@@ -50,7 +50,7 @@ export default function UspBar({ items = [] }) {
       aria-label="Benefícios e garantias"
     >
       <div className="mx-auto max-w-screen-xl">
-        <motion.div
+        <Motion.div
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -65,7 +65,7 @@ export default function UspBar({ items = [] }) {
           {items.map((it, i) => {
             const Icon = ICONS[it.icon] || Shield;
             return (
-              <motion.div
+              <Motion.div
                 key={i}
                 variants={item}
                 role="listitem"
@@ -108,10 +108,10 @@ export default function UspBar({ items = [] }) {
                     <p className="text-xs text-neutral-600">{it.desc}</p>
                   </div>
                 </a>
-              </motion.div>
+              </Motion.div>
             );
           })}
-        </motion.div>
+        </Motion.div>
       </div>
     </section>
   );

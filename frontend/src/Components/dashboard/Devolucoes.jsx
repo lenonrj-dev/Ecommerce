@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { RefreshCcw, HelpCircle, Truck } from "lucide-react";
 
 export default function Devolucoes() {
@@ -18,21 +18,21 @@ export default function Devolucoes() {
   };
 
   return (
-    <motion.section
+    <Motion.section
       initial="hidden"
       animate="visible"
       variants={containerVariants}
       className="flex flex-col items-center justify-center py-16 px-6 sm:px-8 lg:px-12 bg-gradient-to-b from-gray-50 to-white min-h-[70vh] text-gray-800"
     >
       {/* SEO-friendly heading */}
-      <motion.h1
+      <Motion.h1
         variants={itemVariants}
         className="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-4"
       >
         Política de Devoluções & Trocas
-      </motion.h1>
+      </Motion.h1>
 
-      <motion.p
+      <Motion.p
         variants={itemVariants}
         className="text-gray-600 max-w-2xl text-center mb-8 leading-relaxed text-base sm:text-lg"
       >
@@ -43,10 +43,10 @@ export default function Devolucoes() {
         dos nossos clientes. Caso precise devolver ou trocar um produto, nosso
         time está preparado para oferecer uma experiência{" "}
         <span className="font-medium">ágil, segura e transparente</span>.
-      </motion.p>
+      </Motion.p>
 
       {/* Etapas do processo */}
-      <motion.div
+      <Motion.div
         variants={itemVariants}
         className="bg-white shadow-xl rounded-2xl p-6 sm:p-8 max-w-2xl w-full border border-gray-200"
       >
@@ -81,10 +81,10 @@ export default function Devolucoes() {
             </span>
           </li>
         </ul>
-      </motion.div>
+      </Motion.div>
 
       {/* Botão principal */}
-      <motion.div
+      <Motion.div
         variants={itemVariants}
         className="mt-10 flex flex-col items-center"
       >
@@ -99,7 +99,7 @@ export default function Devolucoes() {
           Ao prosseguir, você confirma que leu e concorda com nossas condições
           de devolução e troca.
         </p>
-      </motion.div>
-    </motion.section>
+      </Motion.div>
+    </Motion.section>
   );
 }

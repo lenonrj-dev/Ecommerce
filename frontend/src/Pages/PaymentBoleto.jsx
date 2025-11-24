@@ -1,6 +1,6 @@
 // src/pages/PaymentBoleto.jsx
 import { useContext, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { FileText, ArrowRight, Timer, ShieldCheck } from "lucide-react";
 import { ShopContext } from "../Context/ShopContext";
 import Title from "../Components/Title";
@@ -42,15 +42,15 @@ const PaymentBoleto = () => {
   return (
     <div className="bg-white">
       <div className="max-w-screen-xl mx-auto px-5 sm:px-10 lg:px-20 py-12">
-        <motion.div {...fadeUp(0.05)} className="text-center">
+        <Motion.div {...fadeUp(0.05)} className="text-center">
           <Title text1="PEDIDO" text2="RECEBIDO" />
           <p className="mt-3 text-neutral-600 max-w-2xl mx-auto">
             Seu <strong>boleto foi gerado</strong>. Assim que o pagamento for
             compensado, enviaremos a confirmação para o seu e-mail.
           </p>
-        </motion.div>
+        </Motion.div>
 
-        <motion.div
+        <Motion.div
           {...fadeUp(0.1)}
           className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6"
         >
@@ -112,7 +112,7 @@ const PaymentBoleto = () => {
               </p>
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
       </div>
     </div>
   );

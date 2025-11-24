@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import axios from "axios";
 import { ShopContext } from "../../Context/ShopContext";
 import { toast } from "react-toastify";
@@ -49,7 +49,8 @@ export default function DadosPessoais() {
             promo: !!data.user?.promo,
           }));
         }
-      } catch (err) {
+      } catch (error) {
+        console.error(error);
         if (!controller.signal.aborted) {
           toast.error("Erro ao carregar dados do perfil.");
         }
@@ -110,22 +111,22 @@ export default function DadosPessoais() {
   };
 
   return (
-    <motion.section
+    <Motion.section
       initial="hidden"
       animate="visible"
       variants={containerVariants}
       className="max-w-3xl mx-auto px-6 py-12"
     >
-      <motion.h2 variants={itemVariants} className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+      <Motion.h2 variants={itemVariants} className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
         Atualize seus Dados Pessoais
-      </motion.h2>
+      </Motion.h2>
 
-      <motion.div
+      <Motion.div
         variants={itemVariants}
         className="bg-white rounded-2xl shadow-lg p-6 sm:p-10 space-y-6 border border-gray-100"
       >
         {/* Campos */}
-        <motion.div variants={containerVariants} className="space-y-5">
+        <Motion.div variants={containerVariants} className="space-y-5">
           {[
             { name: "nome", placeholder: "Nome completo" },
             { name: "celular", placeholder: "Celular" },
@@ -136,7 +137,7 @@ export default function DadosPessoais() {
             { name: "cpf", placeholder: "CPF ou CNPJ" },
             { name: "nascimento", placeholder: "Data de nascimento", type: "date" },
           ].map((field) => (
-            <motion.input
+            <Motion.input
               key={field.name}
               variants={itemVariants}
               type={field.type || "text"}
@@ -151,7 +152,7 @@ export default function DadosPessoais() {
           ))}
 
           {/* Select sexo */}
-          <motion.select
+          <Motion.select
             variants={itemVariants}
             name="sexo"
             value={form.sexo}
@@ -161,10 +162,10 @@ export default function DadosPessoais() {
           >
             <option value="masculino">Masculino</option>
             <option value="feminino">Feminino</option>
-          </motion.select>
+          </Motion.select>
 
           {/* Checkbox promo */}
-          <motion.label variants={itemVariants} className="flex items-center gap-3 text-gray-700 cursor-pointer">
+          <Motion.label variants={itemVariants} className="flex items-center gap-3 text-gray-700 cursor-pointer">
             <input
               type="checkbox"
               name="promo"
@@ -173,10 +174,10 @@ export default function DadosPessoais() {
               className="w-4 h-4 accent-black"
             />
             Quero receber e-mails com promoções exclusivas
-          </motion.label>
-        </motion.div>
+          </Motion.label>
+        </Motion.div>
 
-        <motion.button
+        <Motion.button
           variants={itemVariants}
           whileHover={!loading ? { scale: 1.03 } : {}}
           whileTap={!loading ? { scale: 0.97 } : {}}
@@ -187,8 +188,8 @@ export default function DadosPessoais() {
           }`}
         >
           {loading ? "Salvando..." : "Salvar Alterações"}
-        </motion.button>
-      </motion.div>
-    </motion.section>
+        </Motion.button>
+      </Motion.div>
+    </Motion.section>
   );
 }

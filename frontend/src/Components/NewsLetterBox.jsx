@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import Title from "./Title";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -65,7 +65,7 @@ const NewsLetterBox = () => {
   if (isLoggedIn) return null;
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -90,19 +90,19 @@ const NewsLetterBox = () => {
           className="flex-1 w-full px-4 py-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-black focus:outline-none transition-all duration-200 text-sm sm:text-base"
           aria-label="E-mail"
         />
-        <motion.button
+        <Motion.button
           type="submit"
           whileTap={{ scale: 0.95 }}
           whileHover={{ scale: 1.02 }}
           className="bg-black text-white px-6 sm:px-8 py-3 rounded-full text-sm sm:text-base font-medium transition duration-300"
         >
           Continuar
-        </motion.button>
+        </Motion.button>
       </form>
 
       {/* Caso você já tenha um ToastContainer global, pode remover este */}
       <ToastContainer />
-    </motion.div>
+    </Motion.div>
   );
 };
 

@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 
 export default function CtaStrip({ title, subtitle, primary, secondary }) {
   const reduce = useReducedMotion();
@@ -32,7 +32,7 @@ export default function CtaStrip({ title, subtitle, primary, secondary }) {
       role="region"
       aria-label="Chamada para ação"
     >
-      <motion.div
+      <Motion.div
         variants={container}
         initial="hidden"
         whileInView="show"
@@ -49,22 +49,22 @@ export default function CtaStrip({ title, subtitle, primary, secondary }) {
 
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 p-6 sm:p-8">
           {/* Título + subtítulo */}
-          <motion.div variants={item} className="space-y-1">
+          <Motion.div variants={item} className="space-y-1">
             <h4 className="text-xl sm:text-2xl font-semibold tracking-tight">
               {title}
             </h4>
             <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
               {subtitle}
             </p>
-          </motion.div>
+          </Motion.div>
 
           {/* Ações */}
-          <motion.div
+          <Motion.div
             variants={item}
             className="flex w-full sm:w-auto gap-3 sm:gap-4"
           >
             {primary && (
-              <motion.a
+              <Motion.a
                 href={primary.href}
                 className="
                   inline-flex min-h-[44px] items-center justify-center
@@ -80,11 +80,11 @@ export default function CtaStrip({ title, subtitle, primary, secondary }) {
                 whileTap={{ scale: 0.98 }}
               >
                 {primary.label}
-              </motion.a>
+              </Motion.a>
             )}
 
             {secondary && (
-              <motion.a
+              <Motion.a
                 href={secondary.href}
                 className="
                   inline-flex min-h-[44px] items-center justify-center
@@ -101,11 +101,11 @@ export default function CtaStrip({ title, subtitle, primary, secondary }) {
                 whileTap={{ scale: 0.98 }}
               >
                 {secondary.label}
-              </motion.a>
+              </Motion.a>
             )}
-          </motion.div>
+          </Motion.div>
         </div>
-      </motion.div>
+      </Motion.div>
     </section>
   );
 }

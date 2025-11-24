@@ -1,11 +1,11 @@
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 export default function Reviews({ items = [] }) {
   return (
     <section className="px-4 sm:px-8 lg:px-20 py-12 bg-white">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {items.map((t, i) => (
-          <motion.div
+          <Motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -17,7 +17,7 @@ export default function Reviews({ items = [] }) {
             <div className="mt-3 text-xs text-neutral-500">
               {t.name} • {t.rating}★
             </div>
-          </motion.div>
+          </Motion.div>
         ))}
       </div>
     </section>

@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Star = ({ filled }) => (
@@ -28,7 +28,7 @@ export default function ProductComments({ productId, backendUrl, isLoggedIn }) {
   const location = useLocation();
   const token = localStorage.getItem("token");
 
-  const fetchComments = async (limit = 50) => {
+  const fetchComments = useCallback(async (limit = 50) => {
     setLoading(true);
     try {
       const res = await fetch(`${backendUrl}/api/comment/${productId}?limit=${limit}`);
@@ -37,11 +37,11 @@ export default function ProductComments({ productId, backendUrl, isLoggedIn }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [backendUrl, productId]);
 
   useEffect(() => {
     if (productId && backendUrl) fetchComments(50);
-  }, [productId, backendUrl]);
+  }, [productId, backendUrl, fetchComments]);
 
   const onWrite = () => {
     if (!isLoggedIn) {
@@ -147,9 +147,9 @@ export default function ProductComments({ productId, backendUrl, isLoggedIn }) {
 
       <AnimatePresence>
         {openForm && (
-          <motion.div className="fixed inset-0 z-50 grid place-items-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <Motion.div className="fixed inset-0 z-50 grid place-items-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="absolute inset-0 bg-black/60" onClick={() => setOpenForm(false)} />
-            <motion.form
+            <Motion.form
               onSubmit={handleSubmit}
               className="relative w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
               initial={{ y: 24, opacity: 0 }}
@@ -178,8 +178,8 @@ export default function ProductComments({ productId, backendUrl, isLoggedIn }) {
                 <button type="button" onClick={() => setOpenForm(false)} className="rounded-md border px-4 py-2 text-sm hover:bg-gray-50">Cancelar</button>
                 <button type="submit" className="rounded-md bg-black text-white px-4 py-2 text-sm hover:bg-gray-800">Enviar</button>
               </div>
-            </motion.form>
-          </motion.div>
+            </Motion.form>
+          </Motion.div>
         )}
       </AnimatePresence>
 

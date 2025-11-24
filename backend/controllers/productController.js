@@ -2,6 +2,7 @@
 import Product from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs/promises";
+import mongoose from "mongoose";
 
 /* ------------------------------------------------------------------ */
 /*                                Utils                                */
@@ -90,6 +91,36 @@ const uploadImagesFromRequest = async (req) => {
   return urls;
 };
 
+const parseMeasurements = (raw) => {
+  const arr = parseJSON(raw, raw);
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((m) => {
+      if (!m) return null;
+      if (typeof m === "string") {
+        const [label, ...rest] = m.split(":");
+        const value = rest.join(":");
+        return {
+          label: (label || "").trim(),
+          value: (value || "").trim(),
+        };
+      }
+      return {
+        label: (m.label || "").trim(),
+        value: (m.value || "").trim(),
+      };
+    })
+    .filter((m) => m?.label || m?.value);
+};
+
+const parseCombineWith = (raw) => {
+  const arr = parseJSON(raw, raw);
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((id) => String(id || "").trim())
+    .filter((id) => id && mongoose.Types.ObjectId.isValid(id));
+};
+
 /* ------------------------------------------------------------------ */
 /*                               Handlers                              */
 /* ------------------------------------------------------------------ */
@@ -99,6 +130,8 @@ export const addProduct = async (req, res) => {
   try {
     const { name, description, price, category, subCategory, yampiLink } =
       req.body;
+
+    const basePrice = Number(price) || 0;
 
     // tamanhos
     const sizesRaw = Array.isArray(req.body.sizes)
@@ -125,10 +158,45 @@ export const addProduct = async (req, res) => {
     // NOVO: links por tamanho vindos do form
     const yampiLinks = sanitizeYampiLinks(req.body.yampiLinks, normSizes);
 
+    // ----------------- PIX & Parcelamento -----------------
+    const rawPixPrice = req.body.pixPrice;
+    let pixPrice = Number(rawPixPrice);
+    if (!Number.isFinite(pixPrice) || pixPrice < 0) {
+      // fallback: mesmo valor do preço cheio
+      pixPrice = basePrice;
+    }
+
+    // installments: pode vir como objeto ou campos separados
+    let installmentsQuantity = Number(req.body.installmentsQuantity);
+    let installmentsValue = Number(req.body.installmentsValue);
+
+    if (!Number.isFinite(installmentsQuantity) || installmentsQuantity < 1) {
+      installmentsQuantity = 10; // ex.: 10x padrão
+    }
+
+    if (!Number.isFinite(installmentsValue) || installmentsValue <= 0) {
+      installmentsValue =
+        installmentsQuantity > 0 ? basePrice / installmentsQuantity : basePrice;
+    }
+
+    // ----------------- Avaliações -----------------
+    let ratingAverage = Number(req.body.ratingAverage);
+    if (!Number.isFinite(ratingAverage) || ratingAverage < 0) ratingAverage = 0;
+    if (ratingAverage > 5) ratingAverage = 5;
+
+    let ratingCount = Number(req.body.ratingCount);
+    if (!Number.isFinite(ratingCount) || ratingCount < 0) ratingCount = 0;
+
+    const measurements = parseMeasurements(req.body.measurements || []);
+    const availabilityNote = typeof req.body.availabilityNote === "string"
+      ? req.body.availabilityNote
+      : "";
+    const combineWith = parseCombineWith(req.body.combineWith || []);
+
     const doc = await Product.create({
       name,
       description: description || "",
-      price,
+      price: basePrice,
       category: category || "",
       subCategory: subCategory || "",
       sizes: normSizes,
@@ -137,6 +205,18 @@ export const addProduct = async (req, res) => {
       bestseller,
       yampiLink: (yampiLink || "").trim(), // legado único
       yampiLinks, // mapa tamanho -> URL
+
+      // novos campos de pricing/UX
+      pixPrice,
+      installments: {
+        quantity: installmentsQuantity,
+        value: installmentsValue,
+      },
+      ratingAverage,
+      ratingCount,
+      measurements,
+      availabilityNote,
+      combineWith,
     });
 
     res.status(201).json({ success: true, product: doc });
@@ -146,7 +226,7 @@ export const addProduct = async (req, res) => {
   }
 };
 
-/** PUT /api/product/update/:id  (básicos + imagens + yampiLinks) */
+/** PUT /api/product/update/:id  (básicos + imagens + yampiLinks + pricing/rating) */
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -210,6 +290,76 @@ export const updateProduct = async (req, res) => {
       doc.markModified("yampiLinks");
     }
 
+    // ----- PIX -----
+    if (typeof raw.pixPrice !== "undefined") {
+      const n = Number(raw.pixPrice);
+      if (!Number.isNaN(n) && n >= 0) {
+        doc.pixPrice = n;
+      }
+    }
+
+    // ----- Parcelamento -----
+    if (typeof raw.installments !== "undefined") {
+      const inst = parseJSON(raw.installments, raw.installments) || {};
+      const q = Number(inst.quantity);
+      const v = Number(inst.value);
+
+      const quantity = Number.isFinite(q) && q > 0 ? q : doc.installments?.quantity || 1;
+      const value =
+        Number.isFinite(v) && v >= 0
+          ? v
+          : doc.installments?.value || (doc.price || 0) / quantity;
+
+      doc.installments = { quantity, value };
+    } else if (
+      typeof raw.installmentsQuantity !== "undefined" ||
+      typeof raw.installmentsValue !== "undefined"
+    ) {
+      const currentQty = doc.installments?.quantity || 1;
+      const basePrice = doc.price || 0;
+
+      let quantity = Number(
+        raw.installmentsQuantity !== undefined
+          ? raw.installmentsQuantity
+          : currentQty
+      );
+      if (!Number.isFinite(quantity) || quantity < 1) quantity = currentQty || 1;
+
+      let value = Number(
+        raw.installmentsValue !== undefined
+          ? raw.installmentsValue
+          : basePrice / quantity
+      );
+      if (!Number.isFinite(value) || value < 0) value = basePrice / quantity;
+
+      doc.installments = { quantity, value };
+    }
+
+    // ----- Avaliações -----
+    if (typeof raw.ratingAverage !== "undefined") {
+      let n = Number(raw.ratingAverage);
+      if (!Number.isFinite(n) || n < 0) n = 0;
+      if (n > 5) n = 5;
+      doc.ratingAverage = n;
+    }
+
+    if (typeof raw.ratingCount !== "undefined") {
+      let n = Number(raw.ratingCount);
+      if (!Number.isFinite(n) || n < 0) n = 0;
+      doc.ratingCount = n;
+    }
+
+    // ----- Medidas / disponibilidade / combineWith -----
+    if (typeof raw.measurements !== "undefined") {
+      doc.measurements = parseMeasurements(raw.measurements);
+    }
+    if (typeof raw.availabilityNote === "string") {
+      doc.availabilityNote = raw.availabilityNote;
+    }
+    if (typeof raw.combineWith !== "undefined") {
+      doc.combineWith = parseCombineWith(raw.combineWith);
+    }
+
     // ----- imagens (keep + novos uploads, ordem, dedup, max 4) -----
     const keepImages =
       typeof raw.keepImages !== "undefined"
@@ -262,7 +412,40 @@ export const listProducts = async (_req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    res.json({ success: true, products });
+    // Garante que todos os produtos tenham pixPrice/parcelas/rating consistentes
+    const mapped = products.map((p) => {
+      const basePrice = Number(p.price) || 0;
+
+      let pixPrice = Number(p.pixPrice);
+      if (!Number.isFinite(pixPrice) || pixPrice < 0) {
+        pixPrice = basePrice;
+      }
+
+      const q = Number(p.installments?.quantity);
+      const v = Number(p.installments?.value);
+      const quantity = Number.isFinite(q) && q > 0 ? q : 10;
+      const value =
+        Number.isFinite(v) && v > 0 ? v : quantity > 0 ? basePrice / quantity : basePrice;
+
+      const ratingAverage =
+        typeof p.ratingAverage === "number" && Number.isFinite(p.ratingAverage)
+          ? Math.min(Math.max(p.ratingAverage, 0), 5)
+          : 0;
+      const ratingCount =
+        typeof p.ratingCount === "number" && Number.isFinite(p.ratingCount)
+          ? Math.max(p.ratingCount, 0)
+          : 0;
+
+      return {
+        ...p,
+        pixPrice,
+        installments: { quantity, value },
+        ratingAverage,
+        ratingCount,
+      };
+    });
+
+    res.json({ success: true, products: mapped });
   } catch (e) {
     console.error("listProducts error:", e);
     res.status(500).json({ success: false, message: e.message });

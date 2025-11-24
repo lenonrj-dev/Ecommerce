@@ -31,7 +31,9 @@ export default function useNotifAnalytics({ backendUrl, isLoggedIn }) {
           body: JSON.stringify({ sessionId, ...payload }),
           keepalive: true, // ajuda no unload
         });
-      } catch {}
+      } catch (error) {
+        console.error("Falha ao enviar analytics de notificação:", error);
+      }
     };
 
     const trackView = () => {

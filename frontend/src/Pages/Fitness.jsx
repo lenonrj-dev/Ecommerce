@@ -3,14 +3,13 @@ import { ShopContext } from "../Context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../Components/Title";
 import ProductItem from "../Components/ProductItem";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
 
 const Fitness = () => {
   const { products, search } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
-  const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]); // Topwear/Bottomwear
   const [typeFilter, setTypeFilter] = useState([]);   // Top, Macacão, Short, Calça...
   const [sortType, setSortType] = useState("relevent");
@@ -22,11 +21,6 @@ const Fitness = () => {
     const typeFromURL = searchParams.get("type");
     if (typeFromURL) setTypeFilter([typeFromURL]);
   }, [searchParams]);
-
-  const toggleCategory = (e) => {
-    const v = e.target.value;
-    setCategory((prev) => (prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]));
-  };
 
   const toggleSubCategory = (e) => {
     const v = e.target.value;
@@ -57,10 +51,6 @@ const Fitness = () => {
     }
 
     // 3) categoria
-    if (category.length > 0) {
-      productsCopy = productsCopy.filter((item) => category.includes(item.category));
-    }
-
     // 4) subcategoria
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter((item) => subCategory.includes(item.subCategory));
@@ -95,7 +85,7 @@ const Fitness = () => {
   useEffect(() => {
     applyFilter();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, subCategory, typeFilter, search, products]);
+  }, [subCategory, typeFilter, search, products]);
 
   useEffect(() => {
     sortProducts();
@@ -103,7 +93,7 @@ const Fitness = () => {
   }, [sortType]);
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -186,14 +176,14 @@ const Fitness = () => {
         </div>
 
         {filterProducts.length > 0 ? (
-          <motion.div
+          <Motion.div
             layout
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-6"
           >
             <AnimatePresence>
               {filterProducts.map((product) => (
-                <motion.div
+                <Motion.div
                   key={product._id}
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -201,22 +191,16 @@ const Fitness = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ProductItem
-                    id={product._id}
-                    image={product.image}
-                    name={product.name}
-                    price={product.price}
-                    yampiLink={product.yampiLink}
-                  />
-                </motion.div>
+                  <ProductItem product={product} />
+                </Motion.div>
               ))}
             </AnimatePresence>
-          </motion.div>
+          </Motion.div>
         ) : (
           <p className="text-gray-500 mt-4">Nenhum produto fitness encontrado.</p>
         )}
       </div>
-    </motion.div>
+    </Motion.div>
   );
 };
 

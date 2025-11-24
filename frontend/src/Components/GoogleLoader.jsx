@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 /**
  * Loader animado inspirado nos pontos pulsantes do Google.
@@ -16,7 +16,7 @@ export default function GoogleLoader() {
 
       <div className="flex gap-2">
         {dotColors.map((color, index) => (
-          <motion.span
+          <Motion.span
             key={index}
             className="w-4 h-4 rounded-full"
             style={{ backgroundColor: color }}

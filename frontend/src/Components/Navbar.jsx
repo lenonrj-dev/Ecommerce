@@ -3,8 +3,9 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
 import { assets } from "../assets/assets";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import NotificationBell from "./NotificationBell";
+import MiniCart from "./MiniCart";
 
 /* ========= padrões UI ========= */
 const ICON_BTN =
@@ -74,10 +75,28 @@ const CloseIcon = ({ className = "" }) => (
   </svg>
 );
 
+const BagIcon = ({ className = "" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    className={`${ICON_SVG} ${className}`}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M6 9V7a6 6 0 0 1 12 0v2" />
+    <path d="M4 9h16l-1 11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 9Z" />
+    <path d="M10 13h.01M14 13h.01" />
+  </svg>
+);
+
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false); // desktop only
   const [profileOpen, setProfileOpen] = useState(false);
+  const [miniCartOpen, setMiniCartOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -85,7 +104,7 @@ const Navbar = () => {
   const profileRef = useRef(null);
   const searchRef = useRef(null);
 
-  const { favorites, isLoggedIn, search, setSearch, token, logout } =
+  const { favorites, isLoggedIn, search, setSearch, token, logout, cartCount } =
     useContext(ShopContext);
 
   /* Fechar overlays ao navegar */
@@ -93,6 +112,7 @@ const Navbar = () => {
     setMenuOpen(false);
     setProfileOpen(false);
     setShowSearch(false);
+    setMiniCartOpen(false);
   }, [location.pathname]);
 
   /* cliques externos / teclado */
@@ -108,6 +128,7 @@ const Navbar = () => {
         setProfileOpen(false);
         setShowSearch(false);
         setMenuOpen(false);
+        setMiniCartOpen(false);
       }
       if (
         e.key === "Enter" &&
@@ -131,12 +152,12 @@ const Navbar = () => {
   /* Bloqueia scroll do body quando o menu mobile abre */
   useEffect(() => {
     const original = document.body.style.overflow;
-    if (menuOpen) document.body.style.overflow = "hidden";
+    if (menuOpen || miniCartOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = original || "";
     return () => {
       document.body.style.overflow = original || "";
     };
-  }, [menuOpen]);
+  }, [menuOpen, miniCartOpen]);
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-gray-100">
@@ -189,7 +210,7 @@ const Navbar = () => {
               />
             </div>
 
-            {/* Favoritos — desktop */}
+            {/* Favoritos – desktop */}
             <button
               onClick={() =>
                 navigate(isLoggedIn ? "/dashboard?tab=favoritos" : "/login")
@@ -202,6 +223,21 @@ const Navbar = () => {
               {favorites?.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] leading-[18px] text-[10px] text-center bg-red-600 text-white rounded-full px-1">
                   {favorites.length > 99 ? "99+" : favorites.length}
+                </span>
+              )}
+            </button>
+
+            {/* Sacola */}
+            <button
+              onClick={() => setMiniCartOpen(true)}
+              className={ICON_BTN}
+              aria-label="Abrir sacola"
+              title="Sacola"
+            >
+              <BagIcon />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] leading-[18px] text-[10px] text-center rounded-full bg-gray-900 text-white px-1">
+                  {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}
             </button>
@@ -224,7 +260,7 @@ const Navbar = () => {
               </button>
               <AnimatePresence>
                 {showSearch && (
-                  <motion.div
+                  <Motion.div
                     initial={{ width: 0, opacity: 0 }}
                     animate={{ width: 260, opacity: 1 }}
                     exit={{ width: 0, opacity: 0 }}
@@ -238,7 +274,7 @@ const Navbar = () => {
                       onChange={(e) => setSearch(e.target.value)}
                       className="ml-2 text-sm bg-white/60 border border-gray-200 focus:border-gray-300 rounded-full outline-none px-4 py-2 w-[260px] text-gray-700 placeholder:text-gray-400 shadow-sm"
                     />
-                  </motion.div>
+                  </Motion.div>
                 )}
               </AnimatePresence>
             </div>
@@ -261,14 +297,14 @@ const Navbar = () => {
               <AnimatePresence>
                 {profileOpen && (
                   <>
-                    <motion.div
+                    <Motion.div
                       className="fixed inset-0 z-40"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onClick={() => setProfileOpen(false)}
                     />
-                    <motion.div
+                    <Motion.div
                       id="profile-menu"
                       initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -291,7 +327,7 @@ const Navbar = () => {
                       >
                         Sair
                       </button>
-                    </motion.div>
+                    </Motion.div>
                   </>
                 )}
               </AnimatePresence>
@@ -326,14 +362,14 @@ const Navbar = () => {
         {menuOpen && (
           <>
             {/* backdrop escuro atrás do painel */}
-            <motion.div
+            <Motion.div
               className="fixed inset-0 bg-black/40 z-[60] md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMenuOpen(false)}
             />
-            <motion.div
+            <Motion.div
               id="mobile-menu"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -463,6 +499,24 @@ const Navbar = () => {
                       )}
                     </button>
 
+                    <button
+                      onClick={() => {
+                        setMiniCartOpen(true);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-gray-200 hover:bg-gray-50"
+                    >
+                      <span className="inline-flex items-center gap-3 text-gray-800">
+                        <BagIcon />
+                        Sacola
+                      </span>
+                      {cartCount > 0 && (
+                        <span className="ml-2 inline-flex items-center justify-center min-w-[22px] h-[22px] px-1 text-[11px] rounded-full bg-gray-900 text-white">
+                          {cartCount > 99 ? "99+" : cartCount}
+                        </span>
+                      )}
+                    </button>
+
                     {token ? (
                       <>
                         <button
@@ -516,12 +570,13 @@ const Navbar = () => {
                   <div className="h-4 pb-[env(safe-area-inset-bottom)]" />
                 </div>
               </div>
-            </motion.div>
+            </Motion.div>
           </>
         )}
       </AnimatePresence>
 
       {/* Helpers: esconder scrollbar só no painel mobile */}
+      <MiniCart open={miniCartOpen} onClose={() => setMiniCartOpen(false)} />
       <style>{`
         #mm-scroll::-webkit-scrollbar{width:0;height:0}
         #mm-scroll{scrollbar-width:none}

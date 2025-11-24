@@ -3,14 +3,13 @@ import { ShopContext } from '../Context/ShopContext';
 import { assets } from '../assets/assets';
 import Title from '../Components/Title';
 import ProductItem from '../Components/ProductItem';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 
 const Collection = () => {
   const { products, search } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
-  const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [typeFilter, setTypeFilter] = useState([]);
   const [sortType, setSortType] = useState('relevent');
@@ -24,13 +23,6 @@ const Collection = () => {
       setTypeFilter([typeFromURL]);
     }
   }, [searchParams]);
-
-  const toggleCategory = (e) => {
-    const value = e.target.value;
-    category.includes(value)
-      ? setCategory((prev) => prev.filter((item) => item !== value))
-      : setCategory((prev) => [...prev, value]);
-  };
 
   const toggleSubCategory = (e) => {
     const value = e.target.value;
@@ -59,12 +51,6 @@ const Collection = () => {
     }
 
     // 📂 Categoria
-    if (category.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        category.includes(item.category)
-      );
-    }
-
     // 👖 Subcategoria
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter((item) =>
@@ -102,14 +88,14 @@ const Collection = () => {
 
   useEffect(() => {
     applyFilter();
-  }, [category, subCategory, typeFilter, search, products]);
+  }, [subCategory, typeFilter, search, products]);
 
   useEffect(() => {
     sortProducts();
   }, [sortType]);
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -213,14 +199,14 @@ const Collection = () => {
         </div>
 
         {filterProducts.length > 0 ? (
-          <motion.div
+          <Motion.div
             layout
             transition={{ duration: 0.4, ease: 'easeInOut' }}
             className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-6"
           >
             <AnimatePresence>
               {filterProducts.map((product) => (
-                <motion.div
+                <Motion.div
                   key={product._id}
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -228,21 +214,16 @@ const Collection = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ProductItem
-                    id={product._id}
-                    image={product.image}
-                    name={product.name}
-                    price={product.price}
-                  />
-                </motion.div>
+                  <ProductItem product={product} />
+                </Motion.div>
               ))}
             </AnimatePresence>
-          </motion.div>
+          </Motion.div>
         ) : (
           <p className="text-gray-500 mt-4">Nenhum produto encontrado.</p>
         )}
       </div>
-    </motion.div>
+    </Motion.div>
   );
 };
 

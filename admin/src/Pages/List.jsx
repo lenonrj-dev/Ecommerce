@@ -1,77 +1,20 @@
 // src/pages/List.jsx
-import { useEffect, useMemo, useRef, useState } from "react";
-import { backendUrl, currency } from "../App";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { backendUrl } from "../App";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
-/* ---------- Utils ---------- */
-const isHttp = (u) => /^https?:\/\//i.test(String(u || "").trim());
-const isValidUrl = (u) => {
-  if (!u) return false;
-  try {
-    const x = new URL(u);
-    return x.protocol === "http:" || x.protocol === "https:";
-  } catch {
-    return false;
-  }
-};
-const shortUrl = (u) => {
-  if (!isValidUrl(u)) return "";
-  try {
-    const { hostname, pathname } = new URL(u);
-    const p = pathname.length > 1 ? pathname.replace(/\/+$/, "") : "";
-    return `${hostname}${p ? "…" : ""}`;
-  } catch {
-    return u;
-  }
-};
+import {
+  isHttp,
+  isValidUrl,
+  normalizeImageUrl,
+  keyOf,
+} from "../utils/productUtils";
+import ProductRowHeader from "../components/list/ProductRowHeader";
+import ProductMiniDashboard from "../components/list/ProductMiniDashboard";
 
-/** Normaliza qualquer valor vindo do backend para uma URL exibível */
-const normalizeImageUrl = (raw) => {
-  const s = String(raw || "").trim();
-  if (!s) return null;
-  if (isHttp(s)) return s;
-  if (s.startsWith("file://")) return null;
-  if (s.startsWith("/uploads/")) {
-    return `${backendUrl.replace(/\/$/, "")}${s}`;
-  }
-  const filename = s.split("/").pop();
-  if (!filename) return null;
-  return `${backendUrl.replace(/\/$/, "")}/uploads/${filename}`;
-};
-
-const keyOf = (productId, size) => `${productId}:${size}`;
-
-/* ---------- Mini componentes visuais ---------- */
-const SectionTitle = ({ children }) => (
-  <h3 className="text-sm font-semibold text-gray-900 tracking-wide uppercase">
-    {children}
-  </h3>
-);
-
-const FieldLabel = ({ children, htmlFor }) => (
-  <label
-    htmlFor={htmlFor}
-    className="block text-sm font-medium text-gray-700 mb-1"
-  >
-    {children}
-  </label>
-);
-
-const Pill = ({ active, children, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`px-3 py-1 rounded-full border text-xs font-medium transition ${
-      active
-        ? "bg-gray-900 text-white border-gray-900"
-        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-    }`}
-  >
-    {children}
-  </button>
-);
+const DEFAULT_INSTALLMENTS_QTY = 12;
 
 /* ---------- Componente principal ---------- */
 const List = ({ token }) => {
@@ -81,30 +24,66 @@ const List = ({ token }) => {
   const [editData, setEditData] = useState({
     name: "",
     category: "",
-    subCategory: "", // <-- adicionado
+    subCategory: "",
     price: "",
+    // novos campos para Pix e 12x
+    pricePix: "",
+    priceCard12x: "",
+    installmentsQty: "",
   });
 
   // Descrição
-  const [descDraft, setDescDraft] = useState({}); // {productId: string}
+  const [descDraft, setDescDraft] = useState({});
 
   // Variantes
   const [rowEdit, setRowEdit] = useState({});
   const [newVarForm, setNewVarForm] = useState({});
 
-  // Links por tamanho (cache/rascunho)
-  // linkEdits: { productId: { [size]: url } }
+  // Links por tamanho
   const [linkEdits, setLinkEdits] = useState({});
-  // edição inline por linha da tabela de tamanhos
-  // linkRowEdit: { "pid:size": string }
   const [linkRowEdit, setLinkRowEdit] = useState({});
 
-  // Imagens (mini-dashboard)
+  // Imagens
   const [imageBoards, setImageBoards] = useState({});
   const filePickersRef = useRef({});
   const MAX_IMAGES = 4;
 
-  const authHeaders = useMemo(() => ({ headers: { token } }), [token]);
+  const authHeaders = useMemo(() => {
+    const headers = {};
+    if (token) {
+      headers.token = token;
+      headers.Authorization = `Bearer ${token}`;
+    }
+    return { headers };
+  }, [token]);
+
+  const normalizeProduct = useCallback((product) => {
+    const price = Number(product.price) || 0;
+    const pix = Number(product.pixPrice);
+    const qty = Number(product.installments?.quantity);
+    const val = Number(product.installments?.value);
+
+    const installmentsQuantity =
+      Number.isFinite(qty) && qty > 0 ? qty : DEFAULT_INSTALLMENTS_QTY;
+    const installmentsValue =
+      Number.isFinite(val) && val >= 0
+        ? val
+        : installmentsQuantity > 0
+        ? price / installmentsQuantity
+        : price;
+
+    return {
+      ...product,
+      price,
+      pixPrice: Number.isFinite(pix) && pix >= 0 ? pix : price,
+      installments: {
+        quantity: installmentsQuantity,
+        value: installmentsValue,
+      },
+      installmentsQuantity,
+      priceCard12x: installmentsValue,
+    };
+  }, []);
 
   const buscarLista = async () => {
     try {
@@ -113,20 +92,21 @@ const List = ({ token }) => {
         authHeaders
       );
       if (data?.success) {
-        const products = data.products || [];
+        const products = (data.products || []).map(normalizeProduct);
         setList(products);
 
-        // drafts que dependem do produto
         const nextDesc = {};
         const nextBoards = {};
         const nextLinks = {};
+
         for (const p of products) {
           nextDesc[p._id] = p.description || "";
 
           const imgs = (p.image || [])
-            .map(normalizeImageUrl)
+            .map((img) => normalizeImageUrl(img, backendUrl))
             .filter(Boolean)
             .slice(0, MAX_IMAGES);
+
           nextBoards[p._id] = imgs.map((src, idx) => ({
             id: `${p._id}:${idx}`,
             src,
@@ -139,6 +119,7 @@ const List = ({ token }) => {
               : {};
           nextLinks[p._id] = { ...rawLinks };
         }
+
         setDescDraft(nextDesc);
         setImageBoards(nextBoards);
         setLinkEdits(nextLinks);
@@ -158,11 +139,49 @@ const List = ({ token }) => {
   }, []);
 
   /* ---------- Básico ---------- */
+  const toNumber = (value, fallback) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
+  };
+
   const salvarEdicaoBasica = async (id) => {
     try {
+      const current = list.find((p) => p._id === id) || {};
+      const requestedQty =
+        editData.installmentsQty !== ""
+          ? Number(editData.installmentsQty)
+          : current.installmentsQuantity || current.installments?.quantity;
+      const installmentsQuantity =
+        Number.isFinite(requestedQty) && requestedQty > 0
+          ? requestedQty
+          : current.installmentsQuantity || current.installments?.quantity || DEFAULT_INSTALLMENTS_QTY;
+
+      const safePrice = toNumber(
+        editData.price !== "" ? editData.price : current.price,
+        current.price || 0
+      );
+      const safePixPrice = toNumber(
+        editData.pricePix !== "" ? editData.pricePix : current.pixPrice,
+        current.pixPrice || safePrice
+      );
+      const safeCardValue = toNumber(
+        editData.priceCard12x !== "" ? editData.priceCard12x : current.priceCard12x,
+        installmentsQuantity > 0 ? safePrice / installmentsQuantity : safePrice
+      );
+
+      const payload = {
+        name: editData.name || current.name,
+        category: editData.category || current.category,
+        subCategory: editData.subCategory || current.subCategory,
+        price: safePrice,
+        pixPrice: safePixPrice,
+        installmentsQuantity,
+        installmentsValue: safeCardValue,
+      };
+
       const { data } = await axios.put(
         `${backendUrl}/api/product/update/${id}`,
-        { ...editData }, // já inclui subCategory
+        payload,
         authHeaders
       );
       if (data?.success) {
@@ -186,8 +205,13 @@ const List = ({ token }) => {
         { id, visible },
         authHeaders
       );
-      if (data?.success) buscarLista();
-      else toast.error(data?.message || "Não foi possível alterar visibilidade.");
+      if (data?.success) {
+        buscarLista();
+      } else {
+        toast.error(
+          data?.message || "Não foi possível alterar visibilidade."
+        );
+      }
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Erro ao alterar visibilidade."
@@ -228,7 +252,9 @@ const List = ({ token }) => {
         toast.success("Descrição salva!");
         buscarLista();
       } else {
-        toast.error(data?.message || "Não foi possível salvar a descrição.");
+        toast.error(
+          data?.message || "Não foi possível salvar a descrição."
+        );
       }
     } catch (error) {
       toast.error(
@@ -245,11 +271,11 @@ const List = ({ token }) => {
     }));
   };
 
-  // salva todos os links editáveis do produto
-  const salvarLinks = async (productId, sizes) => {
+  const salvarLinks = async (productId) => {
     try {
       const raw = linkEdits[productId] || {};
       const cleaned = {};
+
       for (const s of Object.keys(raw)) {
         const url = String(raw[s] || "").trim();
         if (url) {
@@ -268,7 +294,6 @@ const List = ({ token }) => {
       );
 
       if (data?.success) {
-        // cache local atualizado sem recarregar
         setLinkEdits((prev) => ({ ...prev, [productId]: cleaned }));
         toast.success("Links salvos!");
       } else {
@@ -279,12 +304,12 @@ const List = ({ token }) => {
     }
   };
 
-  // edição inline por tamanho (na tabela de tamanhos)
   const startLinkRowEdit = (pid, size) => {
     const key = keyOf(pid, size);
     const current = (linkEdits[pid] || {})[size] || "";
     setLinkRowEdit((prev) => ({ ...prev, [key]: current }));
   };
+
   const cancelLinkRowEdit = (pid, size) => {
     const key = keyOf(pid, size);
     setLinkRowEdit((prev) => {
@@ -293,6 +318,7 @@ const List = ({ token }) => {
       return n;
     });
   };
+
   const saveLinkRowEdit = async (pid, size) => {
     const key = keyOf(pid, size);
     const url = String(linkRowEdit[key] || "").trim();
@@ -302,7 +328,6 @@ const List = ({ token }) => {
       return;
     }
 
-    // monta objeto completo atualizando só esse size
     const current = linkEdits[pid] || {};
     const next = { ...current };
     if (url) next[size] = url;
@@ -433,13 +458,10 @@ const List = ({ token }) => {
   const deleteVariant = async (productId, size) => {
     if (!window.confirm(`Remover o tamanho "${size}" deste produto?`)) return;
     try {
-      await axios.delete(
-        `${backendUrl}/api/product/${productId}/variant`,
-        {
-          data: { size },
-          ...authHeaders,
-        }
-      );
+      await axios.delete(`${backendUrl}/api/product/${productId}/variant`, {
+        data: { size },
+        ...authHeaders,
+      });
       toast.success("Tamanho removido!");
       buscarLista();
     } catch (error) {
@@ -460,7 +482,10 @@ const List = ({ token }) => {
     setImageBoards((prev) => {
       const current = prev[pid] || [];
       const remainingSlots = MAX_IMAGES - current.length;
-      const selected = Array.from(files).slice(0, Math.max(0, remainingSlots));
+      const selected = Array.from(files).slice(
+        0,
+        Math.max(0, remainingSlots)
+      );
       const toAdd = selected.map((file, idx) => ({
         id: `${pid}:new:${Date.now()}:${idx}`,
         file,
@@ -564,7 +589,10 @@ const List = ({ token }) => {
   /* ---------- UI ---------- */
   const containerVariants = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.07, ease: "easeOut" } },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.07, ease: "easeOut" },
+    },
   };
   const itemVariants = {
     hidden: { opacity: 0, y: 18 },
@@ -576,7 +604,7 @@ const List = ({ token }) => {
       className="p-4 sm:p-6 md:p-10 max-w-7xl mx-auto"
       aria-labelledby="product-list-title"
     >
-      <motion.h1
+      <Motion.h1
         id="product-list-title"
         className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900 tracking-tight"
         initial={{ opacity: 0, y: -20 }}
@@ -584,15 +612,15 @@ const List = ({ token }) => {
         transition={{ duration: 0.6 }}
       >
         Catálogo • Mini-Dashboard por Produto
-      </motion.h1>
+      </Motion.h1>
 
       <p className="text-gray-600 mb-6">
         Gerencie{" "}
-        <strong>conteúdo, imagens, descrição, tamanhos e links</strong> de cada
-        produto — tudo em um só lugar.
+        <strong>conteúdo, imagens, descrição, tamanhos, links e preços</strong>{" "}
+        de cada produto — tudo em um só lugar.
       </p>
 
-      <motion.div
+      <Motion.div
         className="flex flex-col gap-4"
         variants={containerVariants}
         initial="hidden"
@@ -611,970 +639,86 @@ const List = ({ token }) => {
 
         {list.map((product) => {
           const isExpanded = !!expanded[product._id];
-          const variants = Array.isArray(product.variants)
-            ? product.variants
-            : [];
-          const board = imageBoards[product._id] || [];
-          const coverSrc = normalizeImageUrl(product.image?.[0]);
-          const sizes = Array.isArray(product.sizes) ? product.sizes : [];
-          const linksDraft = linkEdits[product._id] || {};
-          const validLinksCount = Object.values(linksDraft).filter(isValidUrl)
-            .length;
+          const coverSrc = normalizeImageUrl(
+            product.image?.[0],
+            backendUrl
+          );
+
+          const onToggleExpanded = () =>
+            setExpanded((prev) => ({
+              ...prev,
+              [product._id]: !isExpanded,
+            }));
 
           return (
-            <motion.div
+            <Motion.div
               key={product._id}
               variants={itemVariants}
               className="rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition"
             >
-              {/* Linha compacta */}
-              <div className="grid grid-cols-1 gap-4 px-4 py-4 text-sm sm:text-base text-gray-700 md:grid-cols-[1fr_2fr_1fr_1fr_1fr_0.8fr_1.2fr]">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg border shadow-sm overflow-hidden bg-gray-50">
-                  {coverSrc ? (
-                    <img
-                      src={coverSrc}
-                      alt={`Imagem do produto ${product.name}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400">
-                      Sem imagem
-                    </div>
-                  )}
-                </div>
+              {/* Linha compacta (header) */}
+              <ProductRowHeader
+                product={product}
+                coverSrc={coverSrc}
+                isExpanded={isExpanded}
+                onToggleExpanded={onToggleExpanded}
+                editId={editId}
+                editData={editData}
+                setEditId={setEditId}
+                setEditData={setEditData}
+                salvarEdicaoBasica={salvarEdicaoBasica}
+                toggleVisibility={toggleVisibility}
+                removerProduto={removerProduto}
+              />
 
-                {editId === product._id ? (
-                  <input
-                    value={editData.name}
-                    onChange={(e) =>
-                      setEditData({ ...editData, name: e.target.value })
-                    }
-                    className="px-2 py-1 border rounded w-full"
-                  />
-                ) : (
-                  <button
-                    className="truncate font-medium text-gray-900 text-left hover:underline"
-                    onClick={() =>
-                      setExpanded((prev) => ({
-                        ...prev,
-                        [product._id]: !isExpanded,
-                      }))
-                    }
-                    title="Abrir mini-dashboard"
-                  >
-                    {product.name}
-                  </button>
-                )}
-
-                {editId === product._id ? (
-                  <input
-                    value={editData.category}
-                    onChange={(e) =>
-                      setEditData({ ...editData, category: e.target.value })
-                    }
-                    className="px-2 py-1 border rounded w-full"
-                  />
-                ) : (
-                  <p className="text-gray-600">{product.category}</p>
-                )}
-
-                {editId === product._id ? (
-                  <select
-                    value={editData.subCategory}
-                    onChange={(e) =>
-                      setEditData({ ...editData, subCategory: e.target.value })
-                    }
-                    className="px-2 py-1 border rounded w-full"
-                  >
-                    <option value="Topwear">Parte Superior</option>
-                    <option value="Bottomwear">Parte Inferior</option>
-                  </select>
-                ) : (
-                  <p className="text-gray-600">{product.subCategory}</p>
-                )}
-
-                {editId === product._id ? (
-                  <input
-                    type="number"
-                    value={editData.price}
-                    onChange={(e) =>
-                      setEditData({ ...editData, price: e.target.value })
-                    }
-                    className="px-2 py-1 border rounded w-full"
-                  />
-                ) : (
-                  <p className="font-semibold text-gray-800">
-                    {currency}
-                    {product.price}
-                  </p>
-                )}
-
-                <motion.button
-                  onClick={() => toggleVisibility(product._id, !product.visible)}
-                  whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.94 }}
-                  className={`w-5 h-5 rounded-full mx-auto transition-colors duration-200 ${
-                    product.visible
-                      ? "bg-green-500 hover:bg-green-600"
-                      : "bg-gray-400 hover:bg-gray-500"
-                  }`}
-                  aria-label={
-                    product.visible
-                      ? "Produto visível no catálogo"
-                      : "Produto oculto no catálogo"
-                  }
-                />
-
-                <div className="flex justify-start sm:justify-end md:justify-center gap-2">
-                  {editId === product._id ? (
-                    <motion.button
-                      onClick={() => salvarEdicaoBasica(product._id)}
-                      whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
-                      className="px-3 py-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 font-semibold transition"
-                      title="Salvar básicas"
-                    >
-                      ✔
-                    </motion.button>
-                  ) : (
-                    <motion.button
-                      onClick={() => {
-                        setEditId(product._id);
-                        setEditData({
-                          name: product.name,
-                          category: product.category,
-                          subCategory: product.subCategory || "Topwear",
-                          price: product.price,
-                        });
-                      }}
-                      whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
-                      className="px-3 py-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 font-semibold transition"
-                      title="Editar nome/categoria/preço"
-                    >
-                      ✎
-                    </motion.button>
-                  )}
-
-                  <motion.button
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Tem certeza que deseja remover este produto? Essa ação não poderá ser desfeita."
-                        )
-                      ) {
-                        removerProduto(product._id);
-                      }
-                    }}
-                    whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.94 }}
-                    className="px-3 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 font-semibold transition"
-                    title="Remover"
-                  >
-                    ✕
-                  </motion.button>
-
-                  <motion.button
-                    onClick={() =>
-                      setExpanded((prev) => ({
-                        ...prev,
-                        [product._id]: !isExpanded,
-                      }))
-                    }
-                    whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.96 }}
-                    className="px-3 py-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 font-semibold transition"
-                    title="Abrir mini-dashboard"
-                  >
-                    {isExpanded ? "Fechar" : "Abrir"}
-                  </motion.button>
-                </div>
-              </div>
-
-              {/* Mini-dashboard */}
+              {/* Mini-dashboard (detalhes do produto) */}
               <AnimatePresence initial={false}>
                 {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="px-4 pb-6"
-                  >
-                    <div className="grid lg:grid-cols-12 gap-6">
-                      {/* COL A: Básico + Descrição */}
-                      <div className="lg:col-span-5 space-y-6">
-                        <div className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm">
-                          <SectionTitle>Conteúdo Básico</SectionTitle>
-                          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <FieldLabel htmlFor={`nm-${product._id}`}>
-                                Nome
-                              </FieldLabel>
-                              <input
-                                id={`nm-${product._id}`}
-                                className="w-full px-3 py-2 border rounded"
-                                value={
-                                  editId === product._id
-                                    ? editData.name
-                                    : product.name
-                                }
-                                onChange={(e) =>
-                                  editId === product._id
-                                    ? setEditData((d) => ({
-                                        ...d,
-                                        name: e.target.value,
-                                      }))
-                                    : setEditId(product._id) ||
-                                      setEditData({
-                                        name: e.target.value,
-                                        category: product.category,
-                                        subCategory:
-                                          product.subCategory || "Topwear",
-                                        price: product.price,
-                                      })
-                                }
-                              />
-                            </div>
-
-                            <div>
-                              <FieldLabel htmlFor={`ct-${product._id}`}>
-                                Categoria
-                              </FieldLabel>
-                              <input
-                                id={`ct-${product._id}`}
-                                className="w-full px-3 py-2 border rounded"
-                                value={
-                                  editId === product._id
-                                    ? editData.category
-                                    : product.category
-                                }
-                                onChange={(e) =>
-                                  editId === product._id
-                                    ? setEditData((d) => ({
-                                        ...d,
-                                        category: e.target.value,
-                                      }))
-                                    : setEditId(product._id) ||
-                                      setEditData({
-                                        name: product.name,
-                                        category: e.target.value,
-                                        subCategory:
-                                          product.subCategory || "Topwear",
-                                        price: product.price,
-                                      })
-                                }
-                              />
-                            </div>
-
-                            <div>
-                              <FieldLabel htmlFor={`sct-${product._id}`}>
-                                Subcategoria
-                              </FieldLabel>
-                              <select
-                                id={`sct-${product._id}`}
-                                className="w-full px-3 py-2 border rounded"
-                                value={
-                                  editId === product._id
-                                    ? editData.subCategory
-                                    : product.subCategory || "Topwear"
-                                }
-                                onChange={(e) =>
-                                  editId === product._id
-                                    ? setEditData((d) => ({
-                                        ...d,
-                                        subCategory: e.target.value,
-                                      }))
-                                    : setEditId(product._id) ||
-                                      setEditData({
-                                        name: product.name,
-                                        category: product.category,
-                                        subCategory: e.target.value,
-                                        price: product.price,
-                                      })
-                                }
-                              >
-                                <option value="Topwear">Parte Superior</option>
-                                <option value="Bottomwear">Parte Inferior</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <FieldLabel htmlFor={`pr-${product._id}`}>
-                                Preço
-                              </FieldLabel>
-                              <input
-                                id={`pr-${product._id}`}
-                                type="number"
-                                className="w-full px-3 py-2 border rounded"
-                                value={
-                                  editId === product._id
-                                    ? editData.price
-                                    : product.price
-                                }
-                                onChange={(e) =>
-                                  editId === product._id
-                                    ? setEditData((d) => ({
-                                        ...d,
-                                        price: e.target.value,
-                                      }))
-                                    : setEditId(product._id) ||
-                                      setEditData({
-                                        name: product.name,
-                                        category: product.category,
-                                        subCategory:
-                                          product.subCategory || "Topwear",
-                                        price: e.target.value,
-                                      })
-                                }
-                              />
-                            </div>
-
-                            <div className="flex items-end">
-                              <button
-                                onClick={() => salvarEdicaoBasica(product._id)}
-                                className="w-full sm:w-auto mt-1 px-4 py-2 rounded bg-black text-white hover:opacity-90"
-                              >
-                                Salvar básicos
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm">
-                          <SectionTitle>Descrição</SectionTitle>
-                          <textarea
-                            className="mt-3 w-full min-h-28 px-3 py-2 border rounded resize-y"
-                            value={descDraft[product._id] ?? ""}
-                            onChange={(e) =>
-                              setDescDraft((prev) => ({
-                                ...prev,
-                                [product._id]: e.target.value,
-                              }))
-                            }
-                            placeholder="Texto de descrição do produto…"
-                          />
-                          <div className="mt-3 flex items-center justify-between">
-                            <span className="text-xs text-gray-500">
-                              Dica: descreva tecido, elasticidade, caimento e
-                              uso.
-                            </span>
-                            <button
-                              onClick={() => salvarDescricao(product._id)}
-                              className="px-4 py-2 rounded bg-black text-white hover:opacity-90"
-                            >
-                              Salvar descrição
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* COL B: Imagens + Tabelas */}
-                      <div className="lg:col-span-7 space-y-6">
-                        {/* Imagens */}
-                        <div className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <SectionTitle>
-                              Imagens (ordem define a principal)
-                            </SectionTitle>
-                            <div className="flex items-center gap-2">
-                              <Pill active>
-                                {board.length}/{MAX_IMAGES}
-                              </Pill>
-                              <input
-                                ref={(el) =>
-                                  (filePickersRef.current[product._id] = el)
-                                }
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                hidden
-                                onChange={(e) => {
-                                  handleAddImages(
-                                    product._id,
-                                    e.target.files
-                                  );
-                                  e.target.value = "";
-                                }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => openFilePicker(product._id)}
-                                className="px-3 py-1.5 rounded-md border bg-white hover:bg-gray-50 text-sm"
-                                disabled={board.length >= MAX_IMAGES}
-                                title={
-                                  board.length >= MAX_IMAGES
-                                    ? "Limite de imagens atingido"
-                                    : "Adicionar imagens"
-                                }
-                              >
-                                + Adicionar
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => salvarImagens(product._id)}
-                                className="px-3 py-1.5 rounded-md bg-black text-white hover:opacity-90 text-sm"
-                              >
-                                Salvar imagens
-                              </button>
-                            </div>
-                          </div>
-
-                          <p className="text-xs text-gray-500 mt-1">
-                            Arraste para reordenar. Use as ações para definir{" "}
-                            <strong>primeira</strong> ou <strong>última</strong>
-                            , ou remover.
-                          </p>
-
-                          <Reorder.Group
-                            axis="x"
-                            values={board}
-                            onReorder={(vals) =>
-                              onReorder(product._id, vals.slice(0, MAX_IMAGES))
-                            }
-                            className="mt-4 flex gap-3 overflow-x-auto pb-2"
-                          >
-                            {board.map((item, idx) => (
-                              <Reorder.Item key={item.id} value={item}>
-                                <div className="relative w-32 h-32 rounded-xl overflow-hidden border shadow-sm bg-gray-50">
-                                  {item.src ? (
-                                    <img
-                                      src={item.src}
-                                      alt={`Imagem ${idx + 1}`}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <img
-                                      src={URL.createObjectURL(item.file)}
-                                      alt="Nova imagem"
-                                      className="w-full h-full object-cover"
-                                    />
-                                  )}
-
-                                  <div className="absolute top-1 left-1">
-                                    <span
-                                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                        idx === 0
-                                          ? "bg-emerald-600 text-white"
-                                          : "bg-white/90 text-gray-700 border"
-                                      }`}
-                                    >
-                                      {idx === 0 ? "PRINCIPAL" : `#${idx + 1}`}
-                                    </span>
-                                  </div>
-
-                                  <div className="absolute bottom-1 inset-x-1 flex gap-1">
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        moveToFirst(product._id, item.id)
-                                      }
-                                      className="flex-1 text-[11px] px-2 py-1 rounded bg-white/95 hover:bg-white border"
-                                      title="Definir como primeira"
-                                    >
-                                      1ª
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        moveToLast(product._id, item.id)
-                                      }
-                                      className="flex-1 text-[11px] px-2 py-1 rounded bg-white/95 hover:bg-white border"
-                                      title="Mover para última"
-                                    >
-                                      Últ.
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        removeImage(product._id, item.id)
-                                      }
-                                      className="flex-1 text-[11px] px-2 py-1 rounded bg-red-50 hover:bg-red-100 border text-red-700"
-                                      title="Remover"
-                                    >
-                                      Rem.
-                                    </button>
-                                  </div>
-                                </div>
-                              </Reorder.Item>
-                            ))}
-                          </Reorder.Group>
-                        </div>
-
-                        {/* Tamanhos / SKU / Link (inline) */}
-                        <div className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <SectionTitle>Tamanhos, SKU & Link</SectionTitle>
-                            <span className="text-xs text-gray-500">
-                              Ative/desative, edite SKU e o link do tamanho
-                            </span>
-                          </div>
-
-                          <div className="overflow-x-auto mt-3">
-                            <table className="w-full text-sm">
-                              <thead className="bg-gray-50 text-gray-600">
-                                <tr>
-                                  <th className="text-left px-2 py-2">
-                                    Tamanho
-                                  </th>
-                                  <th className="text-left px-2 py-2">SKU</th>
-                                  <th className="text-left px-2 py-2">
-                                    Link (Yampi)
-                                  </th>
-                                  <th className="text-center px-2 py-2">
-                                    Ativo
-                                  </th>
-                                  <th className="text-center px-2 py-2">
-                                    Ações
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {variants.length === 0 && (
-                                  <tr>
-                                    <td
-                                      colSpan={5}
-                                      className="px-2 py-4 text-center text-gray-500"
-                                    >
-                                      Nenhum tamanho cadastrado ainda.
-                                    </td>
-                                  </tr>
-                                )}
-
-                                {variants.map((v) => {
-                                  const k = keyOf(product._id, v.size);
-                                  const isRowEditing = !!rowEdit[k];
-
-                                  // link inline
-                                  const lkKey = keyOf(product._id, v.size);
-                                  const isLinkEditing =
-                                    typeof linkRowEdit[lkKey] !== "undefined";
-                                  const savedLink =
-                                    (linksDraft || {})[v.size] || "";
-
-                                  return (
-                                    <tr key={k} className="border-b last:border-b-0">
-                                      {/* Tamanho */}
-                                      <td className="px-2 py-2">
-                                        {isRowEditing ? (
-                                          <input
-                                            className="px-2 py-1 border rounded w-24"
-                                            value={rowEdit[k].size}
-                                            onChange={(e) =>
-                                              handleRowEditChange(
-                                                product._id,
-                                                v.size,
-                                                "size",
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                        ) : (
-                                          <span className="font-medium text-gray-900">
-                                            {v.size}
-                                          </span>
-                                        )}
-                                      </td>
-
-                                      {/* SKU */}
-                                      <td className="px-2 py-2">
-                                        {isRowEditing ? (
-                                          <input
-                                            className="px-2 py-1 border rounded w-36"
-                                            placeholder="SKU (opcional)"
-                                            value={rowEdit[k].sku}
-                                            onChange={(e) =>
-                                              handleRowEditChange(
-                                                product._id,
-                                                v.size,
-                                                "sku",
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                        ) : (
-                                          <span className="text-gray-700">
-                                            {v.sku || "—"}
-                                          </span>
-                                        )}
-                                      </td>
-
-                                      {/* Link (inline) */}
-                                      <td className="px-2 py-2">
-                                        {isLinkEditing ? (
-                                          <div className="flex items-center gap-2">
-                                            <input
-                                              className="px-2 py-1 border rounded w-full min-w-60"
-                                              placeholder={`https://… link do ${v.size}`}
-                                              value={linkRowEdit[lkKey] || ""}
-                                              onChange={(e) =>
-                                                setLinkRowEdit((prev) => ({
-                                                  ...prev,
-                                                  [lkKey]: e.target.value,
-                                                }))
-                                              }
-                                            />
-                                            <button
-                                              onClick={() =>
-                                                saveLinkRowEdit(
-                                                  product._id,
-                                                  v.size
-                                                )
-                                              }
-                                              className="px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200 font-semibold"
-                                            >
-                                              Salvar
-                                            </button>
-                                            <button
-                                              onClick={() =>
-                                                cancelLinkRowEdit(
-                                                  product._id,
-                                                  v.size
-                                                )
-                                              }
-                                              className="px-2 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold"
-                                            >
-                                              Cancelar
-                                            </button>
-                                          </div>
-                                        ) : savedLink ? (
-                                          <div className="flex items-center gap-2">
-                                            <a
-                                              className="text-blue-600 hover:underline break-all"
-                                              href={savedLink}
-                                              target="_blank"
-                                              rel="noreferrer"
-                                              title={savedLink}
-                                            >
-                                              {shortUrl(savedLink)}
-                                            </a>
-                                            <button
-                                              onClick={() =>
-                                                startLinkRowEdit(
-                                                  product._id,
-                                                  v.size
-                                                )
-                                              }
-                                              className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-semibold"
-                                            >
-                                              ✎
-                                            </button>
-                                          </div>
-                                        ) : (
-                                          <button
-                                            onClick={() =>
-                                              startLinkRowEdit(
-                                                product._id,
-                                                v.size
-                                              )
-                                            }
-                                            className="px-2 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-semibold"
-                                          >
-                                            + adicionar link
-                                          </button>
-                                        )}
-                                      </td>
-
-                                      {/* Ativo */}
-                                      <td className="px-2 py-2 text-center">
-                                        <button
-                                          onClick={() =>
-                                            toggleVariantActive(
-                                              product._id,
-                                              v.size,
-                                              !v.isActive
-                                            )
-                                          }
-                                          className={`inline-block w-5 h-5 rounded-full transition-colors ${
-                                            v.isActive
-                                              ? "bg-green-500 hover:bg-green-600"
-                                              : "bg-gray-400 hover:bg-gray-500"
-                                          }`}
-                                          aria-label={
-                                            v.isActive
-                                              ? "Tamanho ativo"
-                                              : "Tamanho inativo"
-                                          }
-                                        />
-                                      </td>
-
-                                      {/* Ações de linha (tamanho/SKU) */}
-                                      <td className="px-2 py-2 text-center">
-                                        {isRowEditing ? (
-                                          <div className="flex items-center justify-center gap-2">
-                                            <button
-                                              onClick={() =>
-                                                saveRowEdit(product._id, v.size)
-                                              }
-                                              className="px-3 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200 font-semibold"
-                                            >
-                                              Salvar
-                                            </button>
-                                            <button
-                                              onClick={() =>
-                                                cancelRowEdit(product._id, v.size)
-                                              }
-                                              className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold"
-                                            >
-                                              Cancelar
-                                            </button>
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center justify-center gap-2">
-                                            <button
-                                              onClick={() =>
-                                                startRowEdit(product._id, v)
-                                              }
-                                              className="px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 font-semibold"
-                                            >
-                                              ✎
-                                            </button>
-                                            <button
-                                              onClick={() =>
-                                                deleteVariant(
-                                                  product._id,
-                                                  v.size
-                                                )
-                                              }
-                                              className="px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 font-semibold"
-                                            >
-                                              Remover
-                                            </button>
-                                          </div>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-
-                                {/* Nova variante */}
-                                <tr className="bg-gray-50">
-                                  <td className="px-2 py-3">
-                                    <input
-                                      className="px-2 py-1 border rounded w-24"
-                                      placeholder="Tamanho (P/M/G)"
-                                      value={newVarForm[product._id]?.size || ""}
-                                      onChange={(e) =>
-                                        setNewVarForm((prev) => ({
-                                          ...prev,
-                                          [product._id]: {
-                                            ...(prev[product._id] || {}),
-                                            size: e.target.value,
-                                          },
-                                        }))
-                                      }
-                                    />
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <input
-                                      className="px-2 py-1 border rounded w-36"
-                                      placeholder="SKU (opcional)"
-                                      value={newVarForm[product._id]?.sku || ""}
-                                      onChange={(e) =>
-                                        setNewVarForm((prev) => ({
-                                          ...prev,
-                                          [product._id]: {
-                                            ...(prev[product._id] || {}),
-                                            sku: e.target.value,
-                                          },
-                                        }))
-                                      }
-                                    />
-                                  </td>
-                                  <td className="px-2 py-3 text-gray-400 text-sm">
-                                    (defina o link depois)
-                                  </td>
-                                  <td className="px-2 py-3 text-center">
-                                    <label className="inline-flex items-center gap-2 cursor-pointer">
-                                      <input
-                                        type="checkbox"
-                                        checked={
-                                          !!(newVarForm[product._id]?.isActive ??
-                                          true)
-                                        }
-                                        onChange={(e) =>
-                                          setNewVarForm((prev) => ({
-                                            ...prev,
-                                            [product._id]: {
-                                              ...(prev[product._id] || {}),
-                                              isActive: e.target.checked,
-                                            },
-                                          }))
-                                        }
-                                      />
-                                      <span className="text-xs text-gray-700">
-                                        Ativo
-                                      </span>
-                                    </label>
-                                  </td>
-                                  <td className="px-2 py-3 text-center">
-                                    <button
-                                      onClick={() => createVariant(product._id)}
-                                      className="px-3 py-2 rounded bg-black text-white hover:opacity-90"
-                                    >
-                                      Adicionar tamanho
-                                    </button>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-
-                        {/* Links (edição em massa) */}
-                        <div className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <SectionTitle>
-                              Links de compra por tamanho (Yampi)
-                            </SectionTitle>
-                            <Pill active>
-                              {validLinksCount}/{sizes.length}
-                            </Pill>
-                          </div>
-
-                          <div className="overflow-x-auto mt-3">
-                            <table className="w-full text-sm">
-                              <thead className="bg-gray-50 text-gray-600">
-                                <tr>
-                                  <th className="text-left px-2 py-2">
-                                    Tamanho
-                                  </th>
-                                  <th className="text-left px-2 py-2">Link</th>
-                                  <th className="text-center px-2 py-2">
-                                    Ações
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {sizes.map((s) => {
-                                  const val = linksDraft[s] || "";
-                                  const ok = !val || isValidUrl(val);
-                                  return (
-                                    <tr key={`${product._id}-${s}`} className="border-b last:border-b-0">
-                                      <td className="px-2 py-2 font-medium text-gray-900">
-                                        {s}
-                                      </td>
-                                      <td className="px-2 py-2">
-                                        <input
-                                          type="url"
-                                          placeholder={`https://… link do ${s}`}
-                                          value={val}
-                                          onChange={(e) =>
-                                            handleLinkChange(
-                                              product._id,
-                                              s,
-                                              e.target.value
-                                            )
-                                          }
-                                          className={`w-full px-2 py-1 border rounded ${
-                                            ok ? "border-gray-300" : "border-red-400"
-                                          }`}
-                                        />
-                                        {!!val && (
-                                          <a
-                                            href={val}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="inline-block mt-1 text-xs text-blue-600 hover:underline"
-                                          >
-                                            Abrir link
-                                          </a>
-                                        )}
-                                      </td>
-                                      <td className="px-2 py-2 text-center">
-                                        <button
-                                          onClick={() => {
-                                            handleLinkChange(product._id, s, "");
-                                          }}
-                                          className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold"
-                                        >
-                                          Limpar
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-
-                                {/* extras (se existir chave em yampiLinks que não esteja em sizes) */}
-                                {Object.keys(linksDraft)
-                                  .filter((k) => !sizes.includes(k))
-                                  .map((extra) => {
-                                    const val = linksDraft[extra] || "";
-                                    const ok = !val || isValidUrl(val);
-                                    return (
-                                      <tr key={`${product._id}-extra-${extra}`} className="border-b last:border-b-0">
-                                        <td className="px-2 py-2 font-medium text-gray-900">
-                                          {extra}
-                                        </td>
-                                        <td className="px-2 py-2">
-                                          <input
-                                            type="url"
-                                            value={val}
-                                            onChange={(e) =>
-                                              handleLinkChange(
-                                                product._id,
-                                                extra,
-                                                e.target.value
-                                              )
-                                            }
-                                            className={`w-full px-2 py-1 border rounded ${
-                                              ok ? "border-gray-300" : "border-red-400"
-                                            }`}
-                                          />
-                                          {!!val && (
-                                            <a
-                                              href={val}
-                                              target="_blank"
-                                              rel="noreferrer"
-                                              className="inline-block mt-1 text-xs text-blue-600 hover:underline"
-                                            >
-                                              Abrir link
-                                            </a>
-                                          )}
-                                        </td>
-                                        <td className="px-2 py-2 text-center">
-                                          <button
-                                            onClick={() =>
-                                              handleLinkChange(
-                                                product._id,
-                                                extra,
-                                                ""
-                                              )
-                                            }
-                                            className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold"
-                                          >
-                                            Remover
-                                          </button>
-                                        </td>
-                                      </tr>
-                                    );
-                                  })}
-                              </tbody>
-                            </table>
-
-                            <div className="flex justify-end mt-3">
-                              <button
-                                onClick={() => salvarLinks(product._id, sizes)}
-                                className="px-4 py-2 rounded bg-black text-white hover:opacity-90"
-                              >
-                                Salvar links
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-[11px] text-gray-500 mt-4">
-                      Dica: a primeira imagem é a que aparece nas vitrines.
-                    </p>
-                  </motion.div>
+                  <ProductMiniDashboard
+                    product={product}
+                    editId={editId}
+                    editData={editData}
+                    setEditId={setEditId}
+                    setEditData={setEditData}
+                    salvarEdicaoBasica={salvarEdicaoBasica}
+                    descDraft={descDraft}
+                    setDescDraft={setDescDraft}
+                    salvarDescricao={salvarDescricao}
+                    imageBoards={imageBoards}
+                    filePickersRef={filePickersRef}
+                    MAX_IMAGES={MAX_IMAGES}
+                    handleAddImages={handleAddImages}
+                    openFilePicker={openFilePicker}
+                    salvarImagens={salvarImagens}
+                    moveToFirst={moveToFirst}
+                    moveToLast={moveToLast}
+                    removeImage={removeImage}
+                  onReorder={onReorder}
+                  rowEdit={rowEdit}
+                  startRowEdit={startRowEdit}
+                  cancelRowEdit={cancelRowEdit}
+                  handleRowEditChange={handleRowEditChange}
+                  saveRowEdit={saveRowEdit}
+                  toggleVariantActive={toggleVariantActive}
+                  newVarForm={newVarForm}
+                  setNewVarForm={setNewVarForm}
+                  createVariant={createVariant}
+                  deleteVariant={deleteVariant}
+                  linkEdits={linkEdits}
+                  linkRowEdit={linkRowEdit}
+                  setLinkRowEdit={setLinkRowEdit}
+                  handleLinkChange={handleLinkChange}
+                  startLinkRowEdit={startLinkRowEdit}
+                    cancelLinkRowEdit={cancelLinkRowEdit}
+                    saveLinkRowEdit={saveLinkRowEdit}
+                    salvarLinks={salvarLinks}
+                  />
                 )}
               </AnimatePresence>
-            </motion.div>
+            </Motion.div>
           );
         })}
-      </motion.div>
+      </Motion.div>
     </section>
   );
 };

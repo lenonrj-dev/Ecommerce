@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 // EXISTENTES
 import Hero from "../Components/Hero";
@@ -188,10 +188,10 @@ const Home = () => {
 
       {/* Bloco de Conteúdo SEO */}
       <SeoRichText
-        title="Moda Fitness e Athleisure"
+        title="Moda Fitness e Athleisure para a sua Black Friday"
         paragraphs={[
-          "Na Marima você encontra peças de moda fitness e athleisure que unem desempenho, conforto e estilo. Nossa curadoria combina tecnologia têxtil, compressão na medida e toque macio para acompanhar o seu ritmo dentro e fora da academia.",
-          "Explore a linha de leggings, tops esportivos, macacões e shorts — com modelagens versáteis que valorizam diferentes corpos. Entrega rápida e troca facilitada.",
+          "Na Marima você encontra peças de moda fitness e athleisure que unem desempenho, conforto e estilo, com tecnologia têxtil, compressão na medida e toque macio para acompanhar o seu ritmo dentro e fora da academia.",
+          "Aproveite a Black Friday Marima para explorar leggings, tops esportivos, macacões e shorts com ofertas especiais — modelagens versáteis que valorizam diferentes corpos, entrega rápida, troca facilitada e descontos exclusivos por tempo limitado. Garanta agora seus looks favoritos antes que acabem.",
         ]}
         links={[
           { label: "Linha Casual", href: "/casual" },

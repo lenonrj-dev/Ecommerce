@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 
 export default function SeoRichText({ title, paragraphs = [], links = [] }) {
   const reduce = useReducedMotion();
@@ -29,7 +29,7 @@ export default function SeoRichText({ title, paragraphs = [], links = [] }) {
       className="px-4 sm:px-6 lg:px-8 py-10"
     >
       <div className="mx-auto max-w-screen-xl">
-        <motion.div
+        <Motion.div
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -40,32 +40,32 @@ export default function SeoRichText({ title, paragraphs = [], links = [] }) {
           "
         >
           {/* Título */}
-          <motion.h2
+          <Motion.h2
             variants={item}
             className="text-xl sm:text-2xl font-semibold text-neutral-900 tracking-tight"
           >
             {title}
-          </motion.h2>
+          </Motion.h2>
 
           {/* Parágrafos SEO */}
-          <motion.div
+          <Motion.div
             variants={container}
             className="mt-4 sm:mt-5 space-y-3 sm:space-y-4 max-w-3xl text-neutral-700"
           >
             {paragraphs.map((p, i) => (
-              <motion.p
+              <Motion.p
                 key={i}
                 variants={item}
                 className="text-base leading-relaxed"
               >
                 {p}
-              </motion.p>
+              </Motion.p>
             ))}
-          </motion.div>
+          </Motion.div>
 
           {/* Links internos (SEO + navegação) */}
           {!!links.length && (
-            <motion.div
+            <Motion.div
               variants={item}
               className="mt-5 sm:mt-6 flex flex-wrap gap-3 sm:gap-4"
             >
@@ -87,9 +87,9 @@ export default function SeoRichText({ title, paragraphs = [], links = [] }) {
                   {l.label}
                 </a>
               ))}
-            </motion.div>
+            </Motion.div>
           )}
-        </motion.div>
+        </Motion.div>
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
 /* ---------- Modal genérico ---------- */
@@ -9,14 +9,14 @@ function Modal({ open, onClose, title, children }) {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <Motion.div
           className="fixed inset-0 z-[60] grid place-items-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-          <motion.div
+          <Motion.div
             className="relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl"
             initial={{ y: 26, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -35,8 +35,8 @@ function Modal({ open, onClose, title, children }) {
               </button>
             </div>
             <div className="mt-4">{children}</div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );
@@ -129,16 +129,16 @@ export default function User() {
   return (
     <main className="p-6 mt-10 md:p-10 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen text-gray-900">
       {/* SEO-friendly Heading */}
-      <motion.h1
+      <Motion.h1
         className="text-2xl md:text-4xl font-extrabold mb-6 tracking-tight text-gray-800"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         Gestão de Usuários | Painel Administrativo
-      </motion.h1>
+      </Motion.h1>
 
-      <motion.p
+      <Motion.p
         className="mb-8 text-gray-600 max-w-2xl leading-relaxed"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -146,10 +146,10 @@ export default function User() {
       >
         Visualize cada cliente como um <strong>contato</strong> e abra um modal para detalhes:
         <em> dados pessoais</em>, <em>endereço</em> e <em>favoritos</em>.
-      </motion.p>
+      </Motion.p>
 
       {/* Grid de contatos */}
-      <motion.div
+      <Motion.div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -164,7 +164,7 @@ export default function User() {
             const favoritesCount = Array.isArray(u.favorites) ? u.favorites.length : 0;
             const hasAddress = !!u.address;
             return (
-              <motion.div
+              <Motion.div
                 key={u._id}
                 className="rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition p-5 flex flex-col"
                 initial={{ opacity: 0, y: 16 }}
@@ -205,11 +205,11 @@ export default function User() {
                 >
                   Ver informações
                 </button>
-              </motion.div>
+              </Motion.div>
             );
           })
         )}
-      </motion.div>
+      </Motion.div>
 
       {/* Modal de informações do usuário */}
       <Modal

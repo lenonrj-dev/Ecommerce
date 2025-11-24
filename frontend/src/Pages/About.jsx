@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { assets } from "../assets/assets";
 import Title from "../Components/Title";
 import NewsLetterBox from "../Components/NewsLetterBox";
@@ -127,7 +127,7 @@ const About = () => {
   return (
     <div className="px-5 sm:px-10 lg:px-20 max-w-screen-xl mx-auto py-12 space-y-20 text-neutral-800">
       {/* ------------------------------- HERO -------------------------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <div className="text-center">
           <Title text1="SOBRE" text2="NÓS" />
           <p className="mt-4 text-sm sm:text-base max-w-2xl mx-auto text-neutral-600">
@@ -139,13 +139,13 @@ const About = () => {
 
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {/* imagem segura + proporção fixa para evitar “salto” de layout */}
-          <motion.div {...fadeIn(0.05)} className="relative w-full">
+          <Motion.div {...fadeIn(0.05)} className="relative w-full">
             <div className="aspect-[2/3] w-full overflow-hidden rounded-2xl border border-neutral-200 shadow-sm">
               <SafeImage src={assets.about_img} alt="Bastidores e curadoria de produtos" className="h-full w-full object-cover" />
             </div>
-          </motion.div>
+          </Motion.div>
 
-          <motion.div {...fadeUp(0.1)} className="space-y-4">
+          <Motion.div {...fadeUp(0.1)} className="space-y-4">
             <h3 className="text-xl font-semibold text-neutral-900">{COMPANY.slogan}</h3>
             <p className="text-neutral-700">
               Desde {COMPANY.founded}, já impactamos <strong>{COMPANY.clients}</strong>. Operamos com processos auditáveis,
@@ -153,21 +153,21 @@ const About = () => {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {trust.map((t, i) => (
-                <motion.div key={i} whileHover={{ y: -2 }} className="rounded-xl border border-neutral-200 bg-white p-4 transition">
+                <Motion.div key={i} whileHover={{ y: -2 }} className="rounded-xl border border-neutral-200 bg-white p-4 transition">
                   <div className="flex items-center gap-2">
                     <span className="rounded-lg border border-neutral-900 p-1.5">{t.icon}</span>
                     <p className="text-sm font-semibold">{t.title}</p>
                   </div>
                   <p className="mt-1 text-xs text-neutral-600">{t.desc}</p>
-                </motion.div>
+                </Motion.div>
               ))}
             </div>
-          </motion.div>
+          </Motion.div>
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* -------------------- MISSÃO / VISÃO / VALORES ---------------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <div className="text-center mb-6">
           <Title text1="NOSSA" text2="IDENTIDADE" />
         </div>
@@ -183,7 +183,7 @@ const About = () => {
             },
             { title: "Valores", desc: null },
           ].map((card, idx) => (
-            <motion.div key={idx} whileHover={{ y: -2 }} className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <Motion.div key={idx} whileHover={{ y: -2 }} className="rounded-2xl border border-neutral-200 bg-white p-6">
               <h4 className="text-lg font-semibold text-neutral-900">{card.title}</h4>
               {card.desc ? (
                 <p className="mt-2 text-sm text-neutral-700">{card.desc}</p>
@@ -196,13 +196,13 @@ const About = () => {
                   ))}
                 </ul>
               )}
-            </motion.div>
+            </Motion.div>
           ))}
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* ------------------------- DIFERENCIAIS ----------------------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <div className="text-center mb-6">
           <Title text1="O QUE" text2="ENTREGAMOS" />
         </div>
@@ -212,24 +212,24 @@ const About = () => {
             { icon: <UserCheck className="h-5 w-5" />, title: "Suporte humano", desc: "Equipe real, respostas claras e resolução ágil." },
             { icon: <Truck className="h-5 w-5" />, title: "Rastreio completo", desc: "Acompanhe seu pedido com atualizações a cada etapa." },
           ].map((card, i) => (
-            <motion.div key={i} {...fadeUp(0.05 * i)} whileHover={{ y: -3 }} className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <Motion.div key={i} {...fadeUp(0.05 * i)} whileHover={{ y: -3 }} className="rounded-2xl border border-neutral-200 bg-white p-6">
               <div className="flex items-center gap-2">
                 <span className="rounded-lg border border-neutral-900 p-1.5">{card.icon}</span>
                 <h4 className="font-semibold">{card.title}</h4>
               </div>
               <p className="mt-2 text-sm text-neutral-700">{card.desc}</p>
-            </motion.div>
+            </Motion.div>
           ))}
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* ------------- TRANSPARÊNCIA / DADOS LEGAIS / POLÍTICAS ------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <div className="text-center mb-6">
           <Title text1="TRANSPARÊNCIA" text2="E CONFIANÇA" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <motion.div whileHover={{ y: -2 }} className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-4">
+          <Motion.div whileHover={{ y: -2 }} className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-4">
             <h4 className="text-lg font-semibold text-neutral-900">Dados do Negócio</h4>
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="h-4 w-4" />
@@ -273,24 +273,24 @@ const About = () => {
                 Trocas/Devoluções
               </a>
             </div>
-          </motion.div>
+          </Motion.div>
 
           <div className="rounded-2xl border border-neutral-200 bg-white p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
             {policies.map((p, i) => (
-              <motion.div key={i} whileHover={{ y: -2 }} className="rounded-xl border border-neutral-200 p-4">
+              <Motion.div key={i} whileHover={{ y: -2 }} className="rounded-xl border border-neutral-200 p-4">
                 <div className="flex items-center gap-2">
                   <span className="rounded-lg border border-neutral-900 p-1.5">{p.icon}</span>
                   <p className="text-sm font-semibold">{p.title}</p>
                 </div>
                 <p className="mt-1 text-xs text-neutral-600">{p.desc}</p>
-              </motion.div>
+              </Motion.div>
             ))}
           </div>
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* --------------------------- TIMELINE (FIX) -------------------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <div className="text-center mb-6">
           <Title text1="NOSSA" text2="JORNADA" />
         </div>
@@ -309,27 +309,27 @@ const About = () => {
             ))}
           </ul>
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* --------------------------- DEPOIMENTOS ----------------------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <div className="text-center mb-6">
           <Title text1="O QUE DIZEM" text2="NOSSOS CLIENTES" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <motion.div key={i} whileHover={{ y: -3 }} className="rounded-2xl border border-neutral-200 bg-white p-5">
+            <Motion.div key={i} whileHover={{ y: -3 }} className="rounded-2xl border border-neutral-200 bg-white p-5">
               <p className="text-sm text-neutral-700">“{t.text}”</p>
               <div className="mt-3 text-xs text-neutral-500">
                 {t.name} • {t.when}
               </div>
-            </motion.div>
+            </Motion.div>
           ))}
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* ------------------------------- CTA --------------------------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <div className="rounded-2xl border border-neutral-900 bg-neutral-900 p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <h4 className="text-lg font-semibold">Pronto para conhecer nossos produtos?</h4>
@@ -352,12 +352,12 @@ const About = () => {
             </a>
           </div>
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* ---------------------------- NEWSLETTER ----------------------------- */}
-      <motion.section {...fadeUp(0)}>
+      <Motion.section {...fadeUp(0)}>
         <NewsLetterBox />
-      </motion.section>
+      </Motion.section>
     </div>
   );
 };

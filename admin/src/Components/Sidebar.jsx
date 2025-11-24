@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
   { to: "/add", icon: assets.add_icon, label: "Adicionar Produtos", seoLabel: "Adicionar novos itens ao catálogo" },
@@ -26,22 +26,22 @@ const Sidebar = () => {
   return (
     <>
       {!isDesktop && (
-        <motion.button
+        <Motion.button
           aria-label="Abrir menu lateral"
           onClick={() => setIsOpen(!isOpen)}
           className="fixed top-16 left-4 z-50 bg-gray-900 text-white p-2 rounded-md shadow-lg"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
-          <motion.div initial={false} animate={{ rotate: isOpen ? 90 : 0 }} transition={{ duration: 0.3 }}>
+          <Motion.div initial={false} animate={{ rotate: isOpen ? 90 : 0 }} transition={{ duration: 0.3 }}>
             ☰
-          </motion.div>
-        </motion.button>
+          </Motion.div>
+        </Motion.button>
       )}
 
       <AnimatePresence>
         {(isOpen || isDesktop) && (
-          <motion.aside
+          <Motion.aside
             role="navigation"
             aria-label="Menu lateral de navegação"
             initial={{ x: -250, opacity: 0 }}
@@ -63,14 +63,14 @@ const Sidebar = () => {
                   }
                   onClick={() => !isDesktop && setIsOpen(false)}
                 >
-                  <motion.div whileHover={{ scale: 1.1, rotate: 5 }} whileTap={{ scale: 0.92 }} className="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-md group-hover:bg-gray-300 transition-all">
+                  <Motion.div whileHover={{ scale: 1.1, rotate: 5 }} whileTap={{ scale: 0.92 }} className="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-md group-hover:bg-gray-300 transition-all">
                     <img src={item.icon} alt={`Ícone: ${item.label}`} className="w-5 h-5" loading="lazy" />
-                  </motion.div>
+                  </Motion.div>
                   <p className="font-medium truncate">{item.label}</p>
                 </NavLink>
               ))}
             </div>
-          </motion.aside>
+          </Motion.aside>
         )}
       </AnimatePresence>
     </>

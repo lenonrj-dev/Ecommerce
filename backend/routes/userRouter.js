@@ -17,7 +17,7 @@ userRouter.post('/register', registerUser);
 userRouter.post('/admin', adminLogin);
 
 // Usuários
-userRouter.get('/users', userAuth, getAllUsers);
+userRouter.get('/users', getAllUsers);
 userRouter.get('/profile', userAuth, getUserProfile);
 userRouter.put('/update-profile', userAuth, updateUserProfile);
 

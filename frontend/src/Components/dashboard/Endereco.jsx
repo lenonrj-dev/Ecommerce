@@ -11,7 +11,7 @@ export default function Endereco() {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { loadAddress(); }, []);
+  useEffect(() => { loadAddress(); }, [loadAddress]);
   useEffect(() => { if (address) setForm({ ...initial, ...address }); }, [address]);
 
   const onChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));

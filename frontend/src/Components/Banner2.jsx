@@ -1,11 +1,11 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 const LEFT_URL =
-  "https://res.cloudinary.com/diwvlsgsw/image/upload/v1759149617/GAB08709_ddffsr.png";
+  "https://res.cloudinary.com/dosk8wyqj/image/upload/v1763841520/Black_whtybm.svg";
 const RIGHT_URL =
-  "https://res.cloudinary.com/diwvlsgsw/image/upload/v1759149509/GAB08714_ly1kry.png";
+  "https://res.cloudinary.com/dosk8wyqj/image/upload/v1763842155/athleisu_trh9jl.svg";
 const MOBILE_URL =
-  "https://res.cloudinary.com/diwvlsgsw/image/upload/v1759149429/GAB08727_j35x2w.png";
+  "https://res.cloudinary.com/dosk8wyqj/image/upload/v1763841520/Black_whtybm.svg";
 const zoomIn = {
   initial: { scale: 1.08, opacity: 0 },
   animate: {
@@ -21,7 +21,7 @@ export default function Banner2() {
       {" "}
       <div className="relative grid w-full overflow-hidden grid-cols-1 md:grid-cols-2 gap-x-0 md:gap-x-[13px] h-[560px] sm:h-[680px] lg:h-[900px] xl:h-[850px]">
         {" "}
-        <motion.figure
+        <Motion.figure
           variants={zoomIn}
           initial="initial"
           animate="animate"
@@ -39,8 +39,8 @@ export default function Banner2() {
             />{" "}
           </picture>{" "}
           <div className="absolute inset-0 bg-white/6" />{" "}
-        </motion.figure>{" "}
-        <motion.figure
+        </Motion.figure>{" "}
+        <Motion.figure
           variants={zoomIn}
           initial="initial"
           animate="animate"
@@ -54,7 +54,7 @@ export default function Banner2() {
             loading="eager"
           />{" "}
           <div className="absolute inset-0 bg-white/6" />{" "}
-        </motion.figure>{" "}
+        </Motion.figure>{" "}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           {" "}
           <div className="text-center px-4">
@@ -72,7 +72,7 @@ export default function Banner2() {
                 className="pointer-events-auto text-[12px] md:text-[13px] tracking-[0.26em] uppercase text-neutral-900 relative after:content-[''] after:block after:h-[1.5px] after:w-full after:mt-2 after:bg-neutral-900/90 hover:opacity-70 transition-opacity"
               >
                 {" "}
-                Descubra Mais Sobre esse Novo Drop{" "}
+                Ofertas para Produtos Selecionados!{" "}
               </a>{" "}
             </div>{" "}
           </div>{" "}

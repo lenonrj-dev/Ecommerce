@@ -1,4 +1,4 @@
-// models/productModel.js
+﻿// models/productModel.js
 import mongoose from "mongoose";
 
 const VariantSchema = new mongoose.Schema(
@@ -11,11 +11,37 @@ const VariantSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const InstallmentSchema = new mongoose.Schema(
+  {
+    quantity: { type: Number, default: 1, min: 1 }, // ex.: 10x
+    value: { type: Number, default: 0, min: 0 }, // valor de cada parcela
+  },
+  { _id: false }
+);
+
+const MeasurementSchema = new mongoose.Schema(
+  {
+    label: { type: String, trim: true },
+    value: { type: String, trim: true },
+  },
+  { _id: false }
+);
+
 const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
+
+    // preço cheio do produto
     price: { type: Number, required: true, min: 0 },
+
+    // preço com desconto à vista (ex.: PIX)
+    pixPrice: { type: Number, default: 0, min: 0 },
+
+    // informações de parcelamento exibidas no front
+    installments: { type: InstallmentSchema, default: () => ({}) },
+
+    // campos de categorização
     category: { type: String, default: "", trim: true },
     subCategory: { type: String, default: "", trim: true },
 
@@ -41,8 +67,17 @@ const ProductSchema = new mongoose.Schema(
       default: {},
     },
 
+    // avaliações agregadas
+    ratingAverage: { type: Number, default: 0, min: 0, max: 5 },
+    ratingCount: { type: Number, default: 0, min: 0 },
+
     // visibilidade de catálogo
     visible: { type: Boolean, default: true },
+
+    // infos adicionais de PDP
+    measurements: { type: [MeasurementSchema], default: [] },
+    availabilityNote: { type: String, default: "" },
+    combineWith: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 
     // soft delete opcional
     deletedAt: { type: Date, default: null },

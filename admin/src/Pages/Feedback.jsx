@@ -1,22 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 function Modal({ open, onClose, title, children }) {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div className="fixed inset-0 z-[70] grid place-items-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <Motion.div className="fixed inset-0 z-[70] grid place-items-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-          <motion.div className="relative w-full max-w-4xl rounded-2xl bg-white p-6 shadow-2xl"
+          <Motion.div className="relative w-full max-w-4xl rounded-2xl bg-white p-6 shadow-2xl"
             initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }}>
             <div className="flex items-start justify-between gap-4 border-b pb-3">
               <h3 className="text-lg md:text-xl font-semibold text-gray-900">{title}</h3>
               <button onClick={onClose} className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100">Fechar</button>
             </div>
             <div className="mt-4">{children}</div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );
@@ -40,7 +40,10 @@ const RatingStars = ({ value = 0 }) => {
 export default function Feedback() {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const token = localStorage.getItem("token");
-  const authHeaders = { Authorization: `Bearer ${token}`, token };
+  const authHeaders = useMemo(
+    () => ({ Authorization: `Bearer ${token}`, token }),
+    [token]
+  );
 
   const [overview, setOverview] = useState([]);
   const [users, setUsers] = useState([]);
@@ -63,24 +66,18 @@ export default function Feedback() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const productMap = useMemo(() => {
-    const map = new Map();
-    overview.forEach(o => map.set(String(o.productId), o));
-    return map;
-  }, [overview]);
-
-  const fetchOverview = async () => {
+  const fetchOverview = useCallback(async () => {
     const { data } = await axios.get(`${backendUrl}/api/comment/admin/overview/all`);
     if (data?.success) setOverview(data.items || []);
-  };
+  }, [backendUrl]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     const { data } = await axios.get(`${backendUrl}/api/user/users`, { headers: authHeaders });
     if (data?.success) setUsers(data.users || []);
-  };
+  }, [backendUrl, authHeaders]);
 
-  useEffect(() => { fetchOverview().catch(() => {}); }, [backendUrl]);
-  useEffect(() => { fetchUsers().catch(() => {}); }, [backendUrl]);
+  useEffect(() => { fetchOverview().catch(() => {}); }, [fetchOverview]);
+  useEffect(() => { fetchUsers().catch(() => {}); }, [fetchUsers]);
 
   const openProductModal = async (row) => {
     setSelectedProduct(row);
@@ -160,10 +157,10 @@ export default function Feedback() {
 
   return (
     <main className="p-6 mt-10 md:p-10 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen text-gray-900">
-      <motion.h1 className="text-2xl md:text-4xl font-extrabold mb-6 tracking-tight text-gray-800"
+      <Motion.h1 className="text-2xl md:text-4xl font-extrabold mb-6 tracking-tight text-gray-800"
         initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         Avaliações e Comentários
-      </motion.h1>
+      </Motion.h1>
 
       <section className="mb-10">
         <div className="flex items-center justify-between mb-3">
@@ -213,7 +210,7 @@ export default function Feedback() {
             </div>
           ) : (
             users.map((u, idx) => (
-              <motion.div key={u._id} className="rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition p-5 flex flex-col"
+              <Motion.div key={u._id} className="rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition p-5 flex flex-col"
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.04, duration: 0.35 }}>
                 <div>
                   <h3 className="text-base font-semibold text-gray-900">{u.name || "-"}</h3>
@@ -223,7 +220,7 @@ export default function Feedback() {
                 <button onClick={() => openUserModal(u)} className="mt-5 w-full rounded-lg bg-black text-white text-sm font-semibold py-2 hover:bg-gray-900 transition">
                   Comentários do usuário
                 </button>
-              </motion.div>
+              </Motion.div>
             ))
           )}
         </div>

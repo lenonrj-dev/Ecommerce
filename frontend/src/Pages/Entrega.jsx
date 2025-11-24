@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 export default function Entrega() {
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function Entrega() {
   return (
     <div className="min-h-screen bg-white text-black">
       <header className="max-w-6xl mx-auto p-6 md:p-10">
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
@@ -124,13 +124,13 @@ export default function Entrega() {
               </nav>
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
       </header>
 
       <main className="max-w-6xl mx-auto p-6 md:p-10 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Índice lateral */}
         <aside className="order-2 md:order-1 md:col-span-1">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -148,7 +148,7 @@ export default function Entrega() {
                 </a>
               ))}
             </nav>
-          </motion.div>
+          </Motion.div>
         </aside>
 
         {/* Conteúdo */}
@@ -157,7 +157,7 @@ export default function Entrega() {
           className="order-1 md:order-2 md:col-span-3"
         >
           {sections.map((sec, i) => (
-            <motion.section
+            <Motion.section
               key={sec.id}
               id={sec.id}
               className="mb-8 bg-white p-6 rounded-2xl shadow-sm"
@@ -171,7 +171,7 @@ export default function Entrega() {
               <p className="mt-3 text-sm leading-relaxed text-gray-700">
                 {sec.content}
               </p>
-            </motion.section>
+            </Motion.section>
           ))}
         </article>
 

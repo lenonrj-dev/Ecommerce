@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import Title from './Title';
 import ProductItem from './ProductItem';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 
 const BestSeller = () => {
   const { products } = useContext(ShopContext);
@@ -14,7 +14,7 @@ const BestSeller = () => {
   }, [products]);
 
   return (
-    <motion.section
+    <Motion.section
       className="w-full px-4 sm:px-6 lg:px-16 py-12 bg-white"
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -22,7 +22,7 @@ const BestSeller = () => {
       viewport={{ once: true }}
     >
       {/* Título */}
-      <motion.div
+      <Motion.div
         className="text-center mb-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -32,10 +32,10 @@ const BestSeller = () => {
         <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-gray-600">
           Amados pelos clientes, prontos para você!
         </p>
-      </motion.div>
+      </Motion.div>
 
       {/* Grid de Produtos */}
-      <motion.div
+      <Motion.div
         className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
         initial="hidden"
         animate="visible"
@@ -48,7 +48,7 @@ const BestSeller = () => {
         }}
       >
         {bestSeller.map((product) => (
-          <motion.div
+          <Motion.div
             key={product._id}
             variants={{
               hidden: { opacity: 0, y: 30 },
@@ -56,17 +56,11 @@ const BestSeller = () => {
             }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
           >
-            <ProductItem
-              id={product._id}
-              image={product.image}
-              name={product.name}
-              price={product.price}
-              yampiLink={product.yampiLink}
-            />
-          </motion.div>
+            <ProductItem product={product} />
+          </Motion.div>
         ))}
-      </motion.div>
-    </motion.section>
+      </Motion.div>
+    </Motion.section>
   );
 };
 

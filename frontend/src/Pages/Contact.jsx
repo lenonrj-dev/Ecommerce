@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown, Mail, MessageCircle, MapPin, Clock, ShieldCheck,
   Instagram, Facebook, Send, QrCode, CreditCard, Banknote, BadgePercent,
@@ -17,7 +17,6 @@ export default function Contact() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [formOpen, setFormOpen] = useState(false); // ⬅️ Formulário via modal
-  const [fabOpen, setFabOpen] = useState(false);   // ⬅️ Mini-menu do WhatsApp
 
   const formRef = useRef(null);
   const faqRef = useRef(null);
@@ -115,7 +114,7 @@ export default function Contact() {
   const scrollToMap = () => mapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
@@ -233,7 +232,7 @@ export default function Contact() {
 
       {/* Coluna informativa + imagem */}
       <div className="flex flex-col-reverse sm:flex-row items-center gap-10">
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, x: -16 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
@@ -298,18 +297,20 @@ export default function Contact() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="rounded-lg border border-black/15 p-2 hover:bg-neutral-50 transition"
+                className="inline-flex items-center gap-2 rounded-full border border-black/15 px-3 py-2 hover:bg-neutral-50 transition text-sm font-medium text-gray-800"
               >
                 <Instagram className="h-5 w-5" />
+                Instagram
               </a>
               <a
                 href={COMPANY.facebook}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Facebook"
-                className="rounded-lg border border-black/15 p-2 hover:bg-neutral-50 transition"
+                className="inline-flex items-center gap-2 rounded-full border border-black/15 px-3 py-2 hover:bg-neutral-50 transition text-sm font-medium text-gray-800"
               >
                 <Facebook className="h-5 w-5" />
+                Facebook
               </a>
             </div>
 
@@ -317,9 +318,9 @@ export default function Contact() {
               <ShieldCheck className="h-4 w-4" /> Suporte dedicado e política de trocas transparente.
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
 
-        <motion.img
+        <Motion.img
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.3 }}
@@ -333,7 +334,7 @@ export default function Contact() {
       {/* ===== MODAL DO FORMULÁRIO ===== */}
       <AnimatePresence>
         {formOpen && (
-          <motion.div
+          <Motion.div
             className="fixed inset-0 z-[60] grid place-items-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -343,7 +344,7 @@ export default function Contact() {
           >
             <div className="absolute inset-0 bg-black/40" onClick={closeForm} />
 
-            <motion.div
+            <Motion.div
               initial={{ y: 24, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 24, opacity: 0 }}
@@ -430,7 +431,7 @@ export default function Contact() {
 
                 <AnimatePresence>
                   {sent && (
-                    <motion.div
+                    <Motion.div
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
@@ -438,10 +439,10 @@ export default function Contact() {
                       className="mt-3 rounded-lg border border-emerald-600/20 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
                     >
                       Recebemos sua mensagem! Responderemos em breve.
-                    </motion.div>
+                    </Motion.div>
                   )}
                   {error && (
-                    <motion.div
+                    <Motion.div
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
@@ -449,12 +450,12 @@ export default function Contact() {
                       className="mt-3 rounded-lg border border-red-600/20 bg-red-50 px-3 py-2 text-sm text-red-700"
                     >
                       {error}
-                    </motion.div>
+                    </Motion.div>
                   )}
                 </AnimatePresence>
               </form>
-            </motion.div>
-          </motion.div>
+            </Motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
 
@@ -473,7 +474,7 @@ export default function Contact() {
               </button>
               <AnimatePresence initial={false}>
                 {openIndex === index && (
-                  <motion.p
+                  <Motion.p
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
@@ -481,7 +482,7 @@ export default function Contact() {
                     className="mt-2 text-sm leading-relaxed text-neutral-600"
                   >
                     {faq.answer}
-                  </motion.p>
+                  </Motion.p>
                 )}
               </AnimatePresence>
             </div>
@@ -504,48 +505,6 @@ export default function Contact() {
         <NewsLetterBox />
       </div>
 
-      {/* ===== FAB WhatsApp (flutuante) ===== */}
-      <div className="fixed bottom-5 right-5 z-[55]">
-        <AnimatePresence>
-          {fabOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              className="mb-2 space-y-2"
-            >
-              <a
-                href={COMPANY.whatsapp}
-                target="_blank"
-                rel="noreferrer"
-                className="block rounded-lg border border-black/10 bg-white px-3 py-2 text-sm shadow-sm hover:shadow transition"
-              >
-                Falar com suporte
-              </a>
-              <button
-                onClick={openForm}
-                className="block w-full text-left rounded-lg border border-black/10 bg-white px-3 py-2 text-sm shadow-sm hover:shadow transition"
-              >
-                Enviar mensagem
-              </button>
-              <a
-                href="/blog"
-                className="block rounded-lg border border-black/10 bg-white px-3 py-2 text-sm shadow-sm hover:shadow transition"
-              >
-                Ver blog
-              </a>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          onClick={() => setFabOpen((v) => !v)}
-          aria-label="Abrir ações do WhatsApp"
-          className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-green-500 text-white shadow-lg hover:brightness-95 active:translate-y-[1px] transition"
-        >
-          <MessageCircle className="h-6 w-6" />
-        </button>
-      </div>
-    </motion.div>
+    </Motion.div>
   );
 }

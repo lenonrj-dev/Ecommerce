@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import HeartButton from "./ui/HeartButton.jsx";
+import { ShopContext } from "../Context/ShopContext";
+import { toast } from "react-toastify";
 
 const CartPlusIcon = (props) => (
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" {...props}>
@@ -16,10 +18,25 @@ const CartPlusIcon = (props) => (
   </svg>
 );
 
-// 🔥 Desconto global — 40% OFF em todos
-const GLOBAL_DISCOUNT = 40;
+const StarIcon = ({ filled }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width="14"
+    height="14"
+    aria-hidden="true"
+    focusable="false"
+    className={filled ? "text-amber-400" : "text-neutral-300"}
+  >
+    <path
+      fill="currentColor"
+      d="M12 2.5 9.3 8 3.3 8.7l4.5 3.9L6.6 18.5 12 15.6l5.4 2.9-1.2-5.9 4.5-3.9-6-.7L12 2.5z"
+    />
+  </svg>
+);
 
-/** Normaliza e cria o mapa de links por tamanho (prioriza yampiLinks; fallback yampiLink único) */
+const GLOBAL_DISCOUNT = 40;
+const DEFAULT_INSTALLMENTS_QTY = 12;
+
 const useSizeLinks = (yampiLink, yampiLinks, variants, sizes) => {
   return useMemo(() => {
     if (yampiLinks && typeof yampiLinks === "object" && Object.keys(yampiLinks).length) {
@@ -41,7 +58,7 @@ const useSizeLinks = (yampiLink, yampiLinks, variants, sizes) => {
           return acc;
         }, {});
       }
-      return { ÚNICO: yampiLink };
+      return { UNICO: yampiLink };
     }
     return {};
   }, [yampiLink, yampiLinks, variants, sizes]);
@@ -50,14 +67,14 @@ const useSizeLinks = (yampiLink, yampiLinks, variants, sizes) => {
 const Modal = ({ open, onClose, title, children }) => (
   <AnimatePresence>
     {open && (
-      <motion.div
+      <Motion.div
         className="fixed inset-0 z-[60] grid place-items-center p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-        <motion.div
+        <Motion.div
           className="relative w-full max-w-sm rounded-xl bg-white p-5 shadow-xl"
           initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -76,41 +93,41 @@ const Modal = ({ open, onClose, title, children }) => (
             </button>
           </div>
           <div className="mt-4">{children}</div>
-        </motion.div>
-      </motion.div>
+        </Motion.div>
+      </Motion.div>
     )}
   </AnimatePresence>
 );
 
-const currencyBRL = (v) =>
-  new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(Number(v || 0));
-
-/**
- * Props esperadas:
- * { id, image = [], name, price, yampiLink, yampiLinks, variants, sizes }
- */
-const ProductItem = ({
-  id,
-  image = [],
-  name,
-  price,
-  yampiLink,
-  yampiLinks,
-  variants,
-  sizes,
-}) => {
+const ProductItem = ({ product: productProp, className = "", ...legacyProps }) => {
+  const { addToCart, isLoggedIn } = useContext(ShopContext);
+  const data = useMemo(
+    () => productProp || legacyProps || {},
+    [productProp, legacyProps]
+  );
+  const {
+    _id,
+    id: legacyId,
+    image = [],
+    name,
+    price,
+    pixPrice,
+    installments,
+    ratingAverage,
+    ratingCount,
+    yampiLink,
+    yampiLinks,
+    variants,
+    sizes,
+  } = data;
+  const id = _id || legacyId;
   const navigate = useNavigate();
 
-  // normaliza imagens
   const images = useMemo(() => {
     if (Array.isArray(image)) return image.filter(Boolean);
     return image ? [image] : [];
   }, [image]);
 
-  // slideshow com crossfade ao passar o mouse
   const [currentIdx, setCurrentIdx] = useState(0);
   const [nextIdx, setNextIdx] = useState(null);
   const [hovering, setHovering] = useState(false);
@@ -147,17 +164,16 @@ const ProductItem = ({
   const [openSizeModal, setOpenSizeModal] = useState(false);
   const sizeLinks = useSizeLinks(yampiLink, yampiLinks, variants, sizes);
   const entries = Object.entries(sizeLinks);
-  const hasAnyLink = entries.length > 0;
 
   const goTo = (link) => link && (window.location.href = link);
 
-  // objeto mínimo para o HeartButton
   const productForHeart = useMemo(
     () => ({ _id: id, name, price, image: images }),
     [id, name, price, images]
   );
 
   const handleCardClick = () => {
+    if (!id) return;
     navigate(`/product/${id}`);
   };
 
@@ -168,19 +184,92 @@ const ProductItem = ({
     }
   };
 
+  const formatCurrency = (value) =>
+    Number(value || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+  const basePrice = Number(price) || 0;
+  const pixValue =
+    Number.isFinite(Number(pixPrice)) && Number(pixPrice) >= 0 ? Number(pixPrice) : basePrice;
+  const installmentsQty =
+    Number(installments?.quantity) > 0 ? Number(installments.quantity) : DEFAULT_INSTALLMENTS_QTY;
+  const installmentValue =
+    Number.isFinite(Number(installments?.value)) && Number(installments?.value) >= 0
+      ? Number(installments.value)
+      : installmentsQty > 0
+      ? basePrice / installmentsQty
+      : basePrice;
+
+  const normalizedProductPayload = useMemo(
+    () => ({
+      ...data,
+      _id: id,
+      name,
+      price: basePrice,
+      pixPrice: pixValue,
+      installments: {
+        quantity: installmentsQty,
+        value: installmentValue,
+      },
+      image: images,
+    }),
+    [data, id, name, basePrice, pixValue, installmentsQty, installmentValue, images]
+  );
+
+  const ensureAuthenticated = () => {
+    if (isLoggedIn) return true;
+    toast.info("Faça login para adicionar produtos à sacola.");
+    navigate("/login");
+    return false;
+  };
+
+  const addProductToCart = (sizeLabel, { skipAuthCheck } = {}) => {
+    if (!normalizedProductPayload) return false;
+    if (!skipAuthCheck && !ensureAuthenticated()) return false;
+    const chosenSize = sizeLabel || entries[0]?.[0] || "UNICO";
+    addToCart(normalizedProductPayload, { size: chosenSize });
+    return true;
+  };
+
+  const handleSizeSelection = (sizeLabel, link) => {
+    const added = addProductToCart(sizeLabel);
+    if (!added) return;
+    setOpenSizeModal(false);
+    if (link) goTo(link);
+  };
+
+  const handleQuickAdd = (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+    if (entries.length <= 1) {
+      const [sizeLabel, link] = entries[0] || [null, yampiLink];
+      const added = addProductToCart(sizeLabel);
+      if (added && link) goTo(link);
+    } else {
+      if (!ensureAuthenticated()) return;
+      setOpenSizeModal(true);
+    }
+  };
+
   const discount = GLOBAL_DISCOUNT;
   const showDiscount = typeof discount === "number" && discount > 0;
+  const avgRating = typeof ratingAverage === "number" ? ratingAverage : 5;
+  const totalRatings = typeof ratingCount === "number" ? ratingCount : 0;
+
+  const cardClasses = ["text-gray-700 cursor-pointer", className].filter(Boolean).join(" ");
 
   return (
     <div
-      className="text-gray-700 cursor-pointer"
+      className={cardClasses}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role="link"
       tabIndex={0}
       aria-label={`Abrir ${name}`}
     >
-      <motion.div
+      <Motion.div
         className="group relative overflow-hidden rounded-xl bg-white shadow-md transition-shadow"
         whileHover={{ y: -4, scale: 1.01 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
@@ -189,33 +278,24 @@ const ProductItem = ({
         onTouchStart={() => setHovering(true)}
         onTouchEnd={() => setHovering(false)}
       >
-        {/* Imagem mais alta para destaque do produto */}
         <div className="relative w-full aspect-[2/3]">
-          {/* Barra de ações: carrinho + coração (topo direito) */}
           <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
-            {/* Carrinho: navega para a página do produto (igual clique normal) */}
-            <motion.button
+            <Motion.button
               type="button"
-              aria-label={`Ver detalhes de ${name}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleCardClick();
-              }}
+              aria-label={`Adicionar ${name} à sacola`}
+              onClick={handleQuickAdd}
               whileHover={{ scale: 1.12, y: -1 }}
               whileTap={{ scale: 0.9 }}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-900 shadow-md hover:bg-white/90 hover:shadow-lg ring-0 hover:ring-2 hover:ring-black/10 transition"
             >
               <CartPlusIcon />
-            </motion.button>
+            </Motion.button>
 
-            {/* HeartButton estilizado (círculo branco) com microinteração */}
-            <motion.div whileHover={{ scale: 1.12, y: -1 }} whileTap={{ scale: 0.9 }}>
+            <Motion.div whileHover={{ scale: 1.12, y: -1 }} whileTap={{ scale: 0.9 }}>
               <HeartButton product={productForHeart} stopPropagation />
-            </motion.div>
+            </Motion.div>
           </div>
 
-          {/* Badge de desconto 40% OFF — canto superior esquerdo, estilo pill branco */}
           {showDiscount && (
             <div className="pointer-events-none absolute top-3 left-3 z-30">
               <div className="rounded-full border border-black/5 bg-white/95 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-900 shadow-md transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-lg">
@@ -224,7 +304,6 @@ const ProductItem = ({
             </div>
           )}
 
-          {/* Imagem principal + crossfade */}
           {images[0] && (
             <img
               className="absolute inset-0 h-full w-full object-cover"
@@ -246,26 +325,53 @@ const ProductItem = ({
             />
           )}
 
-          {/* Badge ZERO TRANSPARÊNCIA centralizado na base da imagem */}
           <div className="pointer-events-none absolute inset-x-0 bottom-3 z-20 flex justify-center">
             <span className="rounded-full bg-white/95 px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-900 shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md">
               Zero transparência
             </span>
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
 
-      {/* Nome + preço abaixo da imagem */}
       <Link
-        className="pt-3 pb-1 text-sm font-medium block hover:underline"
+        className="pt-3 block text-sm font-medium text-neutral-900 hover:underline"
         to={`/product/${id}`}
         onClick={(e) => e.stopPropagation()}
       >
         {name}
       </Link>
-      <p className="text-sm font-semibold">{currencyBRL(price)}</p>
 
-      {/* Modal de tamanhos (mantido para uso futuro) */}
+      <div className="mt-1 space-y-1">
+        <div className="flex items-center gap-[2px] text-amber-500">
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <StarIcon key={idx} filled={idx < Math.round(avgRating)} />
+          ))}
+          {totalRatings > 0 && (
+            <span className="ml-1 text-[11px] font-medium text-neutral-600">({totalRatings})</span>
+          )}
+        </div>
+
+        {pixValue !== basePrice && (
+          <div className="text-[11px] text-neutral-500 line-through">
+            {formatCurrency(basePrice)}
+          </div>
+        )}
+        <div className="flex items-baseline gap-1">
+          <span className="text-[18px] font-semibold text-emerald-600">
+            {formatCurrency(pixValue)}
+          </span>
+          <span className="text-[13px] font-semibold text-neutral-900">no PIX</span>
+        </div>
+
+        <div className="text-[11px] text-neutral-500">
+          {installmentsQty}x de {" "}
+          <span className="font-medium text-neutral-700">
+            {formatCurrency(installmentValue)}
+          </span>{" "}
+          no cartão s/ juros
+        </div>
+      </div>
+
       <Modal
         open={openSizeModal}
         onClose={() => setOpenSizeModal(false)}
@@ -275,7 +381,7 @@ const ProductItem = ({
           {entries.map(([tamanho, link]) => (
             <button
               key={tamanho}
-              onClick={() => goTo(link)}
+              onClick={() => handleSizeSelection(tamanho, link)}
               className="rounded-md border px-3 py-2 text-sm font-medium hover:bg-gray-50"
             >
               {tamanho}
@@ -293,3 +399,4 @@ const ProductItem = ({
 };
 
 export default ProductItem;
+

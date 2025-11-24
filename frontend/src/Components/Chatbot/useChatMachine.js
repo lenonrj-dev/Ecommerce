@@ -25,7 +25,8 @@ export function useChatMachine() {
         const res = await fetch("/api/chat/flow");
         const flow = await res.json();
         dispatch({ type: "SET_FLOW", flow });
-      } catch (e) {
+      } catch (err) {
+        console.error(err);
         setError("Falha ao carregar o chat.");
       } finally {
         setLoading(false);

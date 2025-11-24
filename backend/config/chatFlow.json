@@ -1,145 +1,79 @@
 {
-  "version": "1.1.0",
-  "entry": "start",
+  "version": "2.0.0",
+  "entry": "intro",
   "nodes": {
-    "start": {
-      "message": "Olá! Como podemos te ajudar hoje?",
+    "intro": {
+      "message": "Olá! Eu sou a Marima Assist. Posso ajudar com dúvidas rápidas sobre catálogo, pedidos e políticas da loja. Basta digitar o número da opção:",
       "options": [
-        { "label": "Ver produtos", "next": "produtos" },
-        { "label": "Pedido e rastreio", "next": "pedido_rastreio" },
-        { "label": "Pagamento e cupons", "next": "pagamento_cupons" },
-        { "label": "Entrega e prazos", "next": "entrega_prazos" },
-        { "label": "Trocas, devoluções e suporte", "next": "trocas_suporte" },
-        { "label": "Minha conta", "next": "minha_conta" },
-        { "label": "Políticas do site", "next": "politicas" },
-        { "label": "Falar no WhatsApp", "action": { "type": "open_url", "url": "https://wa.me/5524981467489" }, "next": "fim" }
+        { "id": 1, "label": "Catálogo, tamanhos e materiais", "type": "next", "next": "catalogo" },
+        { "id": 2, "label": "Pagamentos, cupons e parcelamento", "type": "next", "next": "pagamento" },
+        { "id": 3, "label": "Frete, prazos e rastreio", "type": "next", "next": "entrega" },
+        { "id": 4, "label": "Trocas, devoluções e garantias", "type": "next", "next": "trocas" },
+        { "id": 5, "label": "Segurança, originalidade e políticas", "type": "next", "next": "seguranca" },
+        { "id": 6, "label": "Status de pedido e minha conta", "type": "next", "next": "status" },
+        { "id": 7, "label": "Preciso falar com um humano", "type": "next", "next": "contato" }
       ]
     },
-
-    "produtos": {
-      "message": "Escolha uma categoria:",
+    "catalogo": {
+      "message": "Nosso catálogo é cápsula e gira semanalmente para garantir exclusividade. Produzimos em tecidos tecnológicos, com compressão confortável e tingimentos autorais.\n\nEscolha uma opção:",
       "options": [
-        { "label": "Top",       "action": { "type": "navigate", "to": "/outlet?type=Top" },        "next": "fim" },
-        { "label": "Macacão",   "action": { "type": "navigate", "to": "/outlet?type=Macacão" },    "next": "fim" },
-        { "label": "Calça",     "action": { "type": "navigate", "to": "/outlet?type=Calça" },      "next": "fim" },
-        { "label": "Short",     "action": { "type": "navigate", "to": "/outlet?type=Short" },      "next": "fim" },
-        { "label": "Ver todos", "action": { "type": "navigate", "to": "/outlet" },                 "next": "fim" },
-        { "label": "Voltar", "next": "start" }
+        { "id": 1, "label": "Quais tamanhos estão disponíveis?", "type": "message", "response": "Trabalhamos do PP ao GG em várias peças. Se uma grade aparecer esgotada, significa que acabou no estoque. No painel do produto você consegue favoritar o item para receber alerta de reposição." },
+        { "id": 2, "label": "Como escolher o tamanho certo?", "type": "message", "response": "Sugerimos comparar sua medida com a tabela disponível em cada produto. Caso prefira um atendimento humanizado com consultora, digite 7 e fale com nossa equipe." },
+        { "id": 3, "label": "Ver os lançamentos da semana", "type": "link", "url": "https://www.usemarima.com/outlet" },
+        { "id": 4, "label": "Ver linha Casual e Fitness", "type": "link", "url": "https://www.usemarima.com/casual" },
+        { "id": 5, "label": "Falar com consultora de estilo", "type": "next", "next": "contato" }
       ]
     },
-
-    "pedido_rastreio": {
-      "message": "Pedidos e rastreio:",
+    "pagamento": {
+      "message": "Aceitamos Pix com desconto, cartões em até 12x sem juros e boleto/PIx parcelado via parceiros. O checkout é operado pela Yampi, garantindo criptografia e antifraude automáticos.\n\nEscolha uma opção:",
       "options": [
-        { "label": "Rastrear meu pedido",    "action": { "type": "navigate", "to": "/pedidos" },      "next": "fim" },
-        { "label": "Ver meus pedidos",       "action": { "type": "navigate", "to": "/pedidos" },      "next": "fim" },
-        { "label": "Alterar endereço/CPF",   "message": "Após concluir a compra, alterações precisam do nosso suporte. Clique abaixo para falar com a gente.", "next": "pedido_rastreio_contato" },
-        { "label": "Voltar", "next": "start" }
+        { "id": 1, "label": "Como aplicar cupom?", "type": "message", "response": "No carrinho ou no checkout existe um campo \"Cupom\". Digite o código exatamente como recebeu e confirme. Se estiver inválido ou expirado, mostramos um aviso imediatamente." },
+        { "id": 2, "label": "Pix não compensou, e agora?", "type": "message", "response": "Pagamentos via Pix podem levar até 10 minutos para reconhecimento. Se passou desse tempo e não compensou, envie o comprovante para nossa central que verificamos manualmente." },
+        { "id": 3, "label": "Ver parcelamento disponível", "type": "message", "response": "Todo produto informa o valor da parcela de 12x sem juros. Você também pode simular outras faixas dentro do checkout antes de confirmar a compra." },
+        { "id": 4, "label": "Ajuda no checkout", "type": "link", "url": "https://www.usemarima.com/contato" }
       ]
     },
-    "pedido_rastreio_contato": {
-      "message": "Fale com nosso time para ajustar dados do pedido:",
+    "entrega": {
+      "message": "Trabalhamos com Correios e transportadoras parceiras. Prazo médio: Sudeste entre 3-6 dias úteis e outras regiões até 10 dias após aprovação do pagamento.\n\nSelecione o que deseja:",
       "options": [
-        { "label": "WhatsApp",  "action": { "type": "open_url", "url": "https://wa.me/55SEUNUMERO" }, "next": "fim" },
-        { "label": "Formulário de contato", "action": { "type": "navigate", "to": "/contato" }, "next": "fim" },
-        { "label": "Voltar", "next": "pedido_rastreio" }
+        { "id": 1, "label": "Consultar prazos para meu CEP", "type": "link", "url": "https://www.usemarima.com/entrega" },
+        { "id": 2, "label": "Rastrear meu pedido", "type": "link", "url": "https://www.usemarima.com/dashboard?tab=pedidos" },
+        { "id": 3, "label": "Alterar endereço após compra", "type": "message", "response": "Se o pedido ainda não foi faturado, nossa equipe consegue ajustar endereço e CPF. Envie o número do pedido e os novos dados pelo WhatsApp da loja para tratarmos com prioridade." },
+        { "id": 4, "label": "Frete grátis e promoções", "type": "message", "response": "Liberamos frete grátis em campanhas sazonais ou para valores acima de R$ 199, dependendo do CEP. Sempre avisamos via notificações e e-mail." }
       ]
     },
-
-    "pagamento_cupons": {
-      "message": "Pagamento e cupons:",
+    "trocas": {
+      "message": "Temos política de trocas e devoluções alinhada ao CDC: 7 dias corridos após o recebimento para arrependimento e 30 dias para defeitos de fabricação.\n\nDigite o número:",
       "options": [
-        { "label": "Formas de pagamento", "next": "formas_pagamento" },
-        { "label": "Como usar cupom",     "next": "como_usar_cupom" },
-        { "label": "Problemas no checkout", "next": "checkout_ajuda" },
-        { "label": "Voltar", "next": "start" }
+        { "id": 1, "label": "Como solicitar troca/devolução?", "type": "message", "response": "Basta acessar sua dashboard em \"Pedidos\" e clicar em \"Trocar\". Se preferir, chame nossa equipe com o número do pedido que geramos a logística reversa." },
+        { "id": 2, "label": "Quanto tempo leva?", "type": "message", "response": "Após coletarmos a peça e validarmos as condições, enviamos o crédito ou nova unidade em até 5 dias úteis." },
+        { "id": 3, "label": "Garantia de transparência?", "type": "message", "response": "Registramos todo o processo no e-mail e você acompanha as etapas na dashboard. Nosso time envia números de protocolo e confirmações por WhatsApp também." },
+        { "id": 4, "label": "Ver políticas completas", "type": "link", "url": "https://www.usemarima.com/privacidade" }
       ]
     },
-    "formas_pagamento": {
-      "message": "As formas de pagamento aparecem no checkout. Acesse o carrinho para continuar:",
+    "seguranca": {
+      "message": "Nossa produção é autoral e todas as peças carregam etiqueta de originalidade. O site possui certificado SSL, gateway antifraude e LGPD implementada.\n\nEscolha uma opção:",
       "options": [
-        { "label": "Ir para o carrinho", "action": { "type": "navigate", "to": "/carrinho" }, "next": "fim" },
-        { "label": "Finalizar pedido",   "action": { "type": "navigate", "to": "/fazer-pedido" }, "next": "fim" },
-        { "label": "Voltar", "next": "pagamento_cupons" }
+        { "id": 1, "label": "Peças são originais?", "type": "message", "response": "Sim! Criamos, modelamos e fabricamos em ateliês no Rio de Janeiro, com controle total de qualidade. Não revendemos multimarcas." },
+        { "id": 2, "label": "Dados de pagamento ficam salvos?", "type": "message", "response": "Não armazenamos cartões em nossos servidores. Todo o processamento acontece diretamente na Yampi com tokenização PCI." },
+        { "id": 3, "label": "Quais documentos posso consultar?", "type": "link", "url": "https://www.usemarima.com/privacidade" }
       ]
     },
-    "como_usar_cupom": {
-      "message": "Você pode aplicar o cupom no carrinho ou no checkout, no campo \"Cupom\". Verifique letras maiúsculas/minúsculas e validade.",
+    "status": {
+      "message": "Para ver pedidos, cupons ativos, favoritos e endereço, use sua dashboard logada.\n\nEscolha:",
       "options": [
-        { "label": "Ir para o carrinho", "action": { "type": "navigate", "to": "/carrinho" }, "next": "fim" },
-        { "label": "Finalizar pedido",   "action": { "type": "navigate", "to": "/fazer-pedido" }, "next": "fim" },
-        { "label": "Voltar", "next": "pagamento_cupons" }
+        { "id": 1, "label": "Abrir minha dashboard", "type": "link", "url": "https://www.usemarima.com/dashboard" },
+        { "id": 2, "label": "Esqueci a senha", "type": "link", "url": "https://www.usemarima.com/login?mode=recuperar" },
+        { "id": 3, "label": "Atualizar dados pessoais", "type": "link", "url": "https://www.usemarima.com/dashboard?tab=dados" }
       ]
     },
-    "checkout_ajuda": {
-      "message": "Se o pagamento falhar, limpe o cache/atualize a página, confira os dados do cartão ou tente outro método. Persistindo, fale com a gente:",
+    "contato": {
+      "message": "Nosso time humano responde de segunda a sexta, das 9h às 18h (exceto feriados).\n\nEscolha um canal para prosseguir:",
       "options": [
-        
-        { "label": "Contato",  "action": { "type": "navigate", "to": "/contato" }, "next": "fim" },
-        { "label": "Voltar", "next": "pagamento_cupons" }
-      ]
-    },
-
-    "entrega_prazos": {
-      "message": "Informações de envio e prazos:",
-      "options": [
-        { "label": "Ver prazos e frete", "action": { "type": "navigate", "to": "/entrega" }, "next": "fim" },
-        { "label": "Acompanhar pedido",  "action": { "type": "navigate", "to": "/pedidos" }, "next": "fim" },
-        { "label": "Voltar", "next": "start" }
-      ]
-    },
-
-    "trocas_suporte": {
-      "message": "Trocas, devoluções e contato com suporte:",
-      "options": [
-        { "label": "Solicitar troca/devolução", "next": "troca_devolucao" },
-        { "label": "Falar com atendente",       "next": "contato_time" },
-        { "label": "Voltar", "next": "start" }
-      ]
-    },
-    "troca_devolucao": {
-      "message": "Para iniciar uma troca ou devolução, fale com nosso time informando o número do pedido e o motivo.",
-      "options": [
-        { "label": "WhatsApp", "action": { "type": "open_url", "url": "https://wa.me/55SEUNUMERO" }, "next": "fim" },
-        { "label": "Formulário de contato", "action": { "type": "navigate", "to": "/contato" }, "next": "fim" },
-        { "label": "Ver políticas", "action": { "type": "navigate", "to": "/privacidade" }, "next": "fim" },
-        { "label": "Voltar", "next": "trocas_suporte" }
-      ]
-    },
-    "contato_time": {
-      "message": "Canais de atendimento:",
-      "options": [
-        { "label": "WhatsApp", "action": { "type": "open_url", "url": "https://wa.me/55SEUNUMERO" }, "next": "fim" },
-        { "label": "Formulário de contato", "action": { "type": "navigate", "to": "/contato" }, "next": "fim" },
-        { "label": "Voltar", "next": "trocas_suporte" }
-      ]
-    },
-
-    "minha_conta": {
-      "message": "Acessar ou gerenciar minha conta:",
-      "options": [
-        { "label": "Entrar / Cadastrar", "action": { "type": "navigate", "to": "/login" }, "next": "fim" },
-        { "label": "Meus pedidos",       "action": { "type": "navigate", "to": "/pedidos" }, "next": "fim" },
-        { "label": "Dados e endereço",   "action": { "type": "navigate", "to": "/perfil" },  "next": "fim" },
-        { "label": "Voltar", "next": "start" }
-      ]
-    },
-
-    "politicas": {
-      "message": "Documentos e informações do site:",
-      "options": [
-        { "label": "Sobre nós",              "action": { "type": "navigate", "to": "/sobre" },       "next": "fim" },
-        { "label": "Entrega (envio e prazos)","action": { "type": "navigate", "to": "/entrega" },     "next": "fim" },
-        { "label": "Política de Privacidade","action": { "type": "navigate", "to": "/privacidade" }, "next": "fim" },
-        { "label": "Contato",                "action": { "type": "navigate", "to": "/contato" },     "next": "fim" },
-        { "label": "Voltar", "next": "start" }
-      ]
-    },
-
-    "fim": {
-      "message": "Posso ajudar em algo mais?",
-      "options": [
-        { "label": "Recomeçar", "next": "start" }
+        { "id": 1, "label": "WhatsApp oficial", "type": "link", "url": "https://wa.me/5524981467489?text=Oi%20Marima,%20preciso%20de%20ajuda" },
+        { "id": 2, "label": "E-mail suporte.marima.loja@gmail.com", "type": "link", "url": "mailto:suporte.marima.loja@gmail.com" },
+        { "id": 3, "label": "Formulário de contato", "type": "link", "url": "https://www.usemarima.com/contato" },
+        { "id": 4, "label": "Falar com especialista em tamanho", "type": "link", "url": "https://wa.me/5524981467489?text=Quero%20ajuda%20para%20escolher%20tamanhos" }
       ]
     }
   }

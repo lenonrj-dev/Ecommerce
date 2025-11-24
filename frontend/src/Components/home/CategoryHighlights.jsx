@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -70,7 +70,7 @@ export default function CategoryHighlights({ items = [] }) {
       aria-label="Destaques de categoria"
       role="region"
     >
-      <motion.div
+      <Motion.div
         variants={container}
         initial="hidden"
         whileInView="show"
@@ -124,7 +124,7 @@ export default function CategoryHighlights({ items = [] }) {
             <style>{`.snap-x::-webkit-scrollbar{display:none}`}</style>
 
             {items.map((c, i) => (
-              <motion.article
+              <Motion.article
                 key={i}
                 variants={item}
                 className="
@@ -143,7 +143,7 @@ export default function CategoryHighlights({ items = [] }) {
                   discount={c.discount}
                   isBlackFriday={c.isBlackFriday}
                 />
-              </motion.article>
+              </Motion.article>
             ))}
           </div>
 
@@ -159,7 +159,7 @@ export default function CategoryHighlights({ items = [] }) {
             <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-neutral-800" />
           </button>
         </div>
-      </motion.div>
+      </Motion.div>
     </section>
   );
 }
@@ -184,7 +184,7 @@ function CategoryCardLink({ href, title, image, discount, isBlackFriday }) {
       "
       aria-label={title}
     >
-      <motion.div
+      <Motion.div
         whileHover={{ y: -4, scale: 1.01 }}
         transition={{ type: "spring", stiffness: 260, damping: 22 }}
         className="flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-sm transition-shadow duration-300 group hover:shadow-lg"
@@ -216,7 +216,7 @@ function CategoryCardLink({ href, title, image, discount, isBlackFriday }) {
             }
           `}</style>
 
-          <motion.figure
+          <Motion.figure
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
             // 🔥 Ratio mais vertical para mostrar melhor a peça
@@ -234,7 +234,7 @@ function CategoryCardLink({ href, title, image, discount, isBlackFriday }) {
                 loaded ? "opacity-100" : "opacity-0",
               ].join(" ")}
             />
-          </motion.figure>
+          </Motion.figure>
 
           <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/25 via-black/5 to-transparent" />
         </div>
@@ -268,7 +268,7 @@ function CategoryCardLink({ href, title, image, discount, isBlackFriday }) {
             )}
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
     </Link>
   );
 }

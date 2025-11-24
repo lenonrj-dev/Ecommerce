@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 /** Imagens do slide (P&B de preferência) */
 const SLIDES = [
@@ -15,7 +15,7 @@ const SLIDES = [
 
 export default function Login() {
   const navigate = useNavigate();
-  const { token, setToken, backendUrl } = useContext(ShopContext);
+  const { token, setToken, backendUrl, setUser } = useContext(ShopContext);
 
   // 'entrar' | 'cadastrar' | 'recuperar'
   const [mode, setMode] = useState("entrar");
@@ -52,8 +52,10 @@ export default function Login() {
     emailRef.current?.focus();
   }, [mode]);
 
+  const postAuthRedirectRef = useRef(null);
+
   useEffect(() => {
-    if (token && mode !== "recuperar") {
+    if (token && mode !== "recuperar" && !postAuthRedirectRef.current) {
       navigate("/dashboard", { replace: true });
     }
   }, [token, mode, navigate]);
@@ -142,11 +144,28 @@ export default function Login() {
         toast.error("Token não retornado pelo servidor.");
         return;
       }
-      setToken(newToken);
+      const rawExpAt = Number(data?.data?.expAt);
+      const normalizedExpAt = Number.isFinite(rawExpAt) ? rawExpAt : undefined;
+      const expiresInSeconds = Number(data?.data?.expiresIn);
+      const ttlMs =
+        normalizedExpAt && normalizedExpAt > Date.now()
+          ? normalizedExpAt - Date.now()
+          : Number.isFinite(expiresInSeconds) && expiresInSeconds > 0
+          ? expiresInSeconds * 1000
+          : undefined;
+      const scenario = mode === "cadastrar" ? "new" : "return";
+      postAuthRedirectRef.current = true;
+      setToken(newToken, { ttlMs, expAt: normalizedExpAt });
+      if (data?.data?.user) {
+        setUser(data.data.user);
+      }
       toast.success(
         mode === "cadastrar" ? "Cadastro realizado!" : "Login realizado!"
       );
-      navigate("/outlet", { replace: true });
+      navigate("/bem-vindo", {
+        replace: true,
+        state: { scenario },
+      });
     } catch (error) {
       console.error(error);
       toast.error(
@@ -183,7 +202,7 @@ export default function Login() {
         }
       `}</style>
 
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -212,7 +231,7 @@ export default function Login() {
                 "
               >
                 <AnimatePresence mode="wait">
-                  <motion.img
+                  <Motion.img
                     key={SLIDES[idx] || "placeholder"}
                     src={SLIDES[idx]}
                     alt="Slide"
@@ -250,7 +269,7 @@ export default function Login() {
           {/* Coluna do formulário */}
           <div className="bg-white flex items-center">
             <div className="w-full px-4 sm:px-8 py-8 sm:py-12">
-              <motion.div
+              <Motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: 0.05 }}
@@ -298,9 +317,9 @@ export default function Login() {
                     </button>
                   </p>
                 )}
-              </motion.div>
+              </Motion.div>
 
-              <motion.form
+              <Motion.form
                 onSubmit={onSubmitHandler}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -419,14 +438,14 @@ export default function Login() {
 
                     <AnimatePresence>
                       {capsLockOn && (
-                        <motion.div
+                        <Motion.div
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -4 }}
                           className="mt-2 text-xs text-black/60"
                         >
                           Caps Lock está ativado.
-                        </motion.div>
+                        </Motion.div>
                       )}
                     </AnimatePresence>
                   </div>
@@ -457,7 +476,7 @@ export default function Login() {
                   </div>
                 )}
 
-                <motion.button
+                <Motion.button
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={isSubmitting}
@@ -474,12 +493,12 @@ export default function Login() {
                     : mode === "cadastrar"
                     ? "Criar conta"
                     : "Entrar"}
-                </motion.button>
-              </motion.form>
+                </Motion.button>
+              </Motion.form>
             </div>
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
     </div>
   );
 }

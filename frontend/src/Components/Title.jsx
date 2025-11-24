@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 
 const Title = ({ text1, text2 }) => {
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -13,7 +13,7 @@ const Title = ({ text1, text2 }) => {
         <span className='text-gray-900 font-semibold'>{text2}</span>
       </p>
       <div className='flex-grow h-[1.5px] sm:h-[2px] bg-gray-300 max-w-[80px] sm:max-w-[120px] rounded'></div>
-    </motion.div>
+    </Motion.div>
   );
 };
 

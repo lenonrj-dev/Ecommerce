@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 export default function Privacidade() {
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function Privacidade() {
     <div className="min-h-screen bg-white text-black">
       {/* Cabeçalho */}
       <header className="max-w-6xl mx-auto p-6 md:p-10">
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
@@ -54,14 +54,14 @@ export default function Privacidade() {
               </nav>
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
       </header>
 
       {/* Conteúdo */}
       <main className="max-w-6xl mx-auto p-6 md:p-10 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Índice lateral */}
         <aside className="order-2 md:order-1 md:col-span-1">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -81,7 +81,7 @@ export default function Privacidade() {
               <a href="#alteracoes" className="block hover:underline">Alterações</a>
               <a href="#contato" className="block hover:underline">Contato</a>
             </nav>
-          </motion.div>
+          </Motion.div>
         </aside>
 
         {/* Seções principais */}
@@ -154,7 +154,7 @@ export default function Privacidade() {
                 "Caso tenha dúvidas, solicitações ou queira exercer seus direitos, entre em contato: E-mail: suporte.marima.loja@gmail.com",
             },
           ].map((sec, i) => (
-            <motion.section
+            <Motion.section
               key={sec.id}
               id={sec.id}
               className="mb-8 bg-white p-6 rounded-2xl shadow-sm"
@@ -182,7 +182,7 @@ export default function Privacidade() {
                   </a>
                 </div>
               )}
-            </motion.section>
+            </Motion.section>
           ))}
         </article>
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 /**
@@ -36,7 +36,7 @@ export default function BlogTeasers({ posts = [] }) {
       aria-label="Artigos do blog e guias"
       role="region"
     >
-      <motion.div
+      <Motion.div
         variants={container}
         initial="hidden"
         whileInView="show"
@@ -44,7 +44,7 @@ export default function BlogTeasers({ posts = [] }) {
         className="mx-auto max-w-screen-xl grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
       >
         {posts.map((p, i) => (
-          <motion.article
+          <Motion.article
             key={i}
             variants={item}
             className="group rounded-2xl ring-1 ring-black/5 bg-white overflow-hidden shadow-sm transition will-change-transform transform-gpu hover:shadow-lg focus-within:shadow-lg"
@@ -70,9 +70,9 @@ export default function BlogTeasers({ posts = [] }) {
                 Ler artigo
               </Link>
             </div>
-          </motion.article>
+          </Motion.article>
         ))}
-      </motion.div>
+      </Motion.div>
     </section>
   );
 }
@@ -110,7 +110,7 @@ function CardImage({ src, alt, href }) {
         className="block focus-visible:outline-none"
         aria-label={alt}
       >
-        <motion.figure
+        <Motion.figure
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="aspect-[4/3] md:aspect-[16/9] w-full overflow-hidden"
@@ -126,7 +126,7 @@ function CardImage({ src, alt, href }) {
               loaded ? "opacity-100" : "opacity-0",
             ].join(" ")}
           />
-        </motion.figure>
+        </Motion.figure>
       </Link>
     </div>
   );

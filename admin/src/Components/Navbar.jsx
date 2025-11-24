@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import { assets } from "../assets/assets.js";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 const Navbar = ({ setToken }) => {
   return (
-    <motion.nav
+    <Motion.nav
       role="navigation"
       aria-label="Menu principal"
       className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md shadow-lg px-4 md:px-10 py-4 flex items-center justify-between z-50"
@@ -14,7 +14,7 @@ const Navbar = ({ setToken }) => {
       transition={{ duration: 0.7, ease: [0.25, 0.8, 0.25, 1] }}
     >
       {/* Logo */}
-      <motion.a
+      <Motion.a
         href="/"
         aria-label="Página inicial - Marima Store"
         className="flex items-center gap-3"
@@ -30,12 +30,12 @@ const Navbar = ({ setToken }) => {
         <span className="hidden md:block text-lg lg:text-xl font-semibold text-gray-900 tracking-wide">
           Marima Store
         </span>
-      </motion.a>
+      </Motion.a>
 
       {/* Menu mobile futuro */}
       <div className="flex items-center gap-4">
         {/* Logout */}
-        <motion.button
+        <Motion.button
           onClick={() => setToken("")}
           className="bg-gray-900 text-white text-xs sm:text-sm lg:text-base px-4 sm:px-6 py-2 rounded-full shadow-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 focus:outline-none transition-all duration-300"
           whileHover={{ scale: 1.08 }}
@@ -43,9 +43,9 @@ const Navbar = ({ setToken }) => {
           aria-label="Encerrar sessão e sair da conta"
         >
           Sair
-        </motion.button>
+        </Motion.button>
       </div>
-    </motion.nav>
+    </Motion.nav>
   );
 };
 

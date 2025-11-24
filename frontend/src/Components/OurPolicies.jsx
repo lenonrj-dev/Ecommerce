@@ -1,5 +1,5 @@
 import { assets } from '../assets/assets';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 
 const policies = [
   {
@@ -22,7 +22,7 @@ const policies = [
 const OurPolicies = () => {
   return (
     <div className="px-4 sm:px-8 lg:px-20 py-16 bg-white">
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -35,11 +35,11 @@ const OurPolicies = () => {
         <p className="text-sm text-gray-500 mt-2">
           Segurança, qualidade e suporte em primeiro lugar.
         </p>
-      </motion.div>
+      </Motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 text-center">
         {policies.map((item, index) => (
-          <motion.div
+          <Motion.div
             key={index}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -47,7 +47,7 @@ const OurPolicies = () => {
             viewport={{ once: true }}
             className="bg-gray-50 hover:bg-gray-100 transition-colors duration-300 p-6 rounded-xl shadow-sm hover:shadow-md"
           >
-            <motion.img
+            <Motion.img
               src={item.icon}
               alt={item.title}
               className="w-12 h-12 mx-auto mb-4"
@@ -58,7 +58,7 @@ const OurPolicies = () => {
               {item.title}
             </h3>
             <p className="text-gray-500 text-xs sm:text-sm">{item.desc}</p>
-          </motion.div>
+          </Motion.div>
         ))}
       </div>
     </div>

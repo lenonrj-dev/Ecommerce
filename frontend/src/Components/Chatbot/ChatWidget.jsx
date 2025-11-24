@@ -1,7 +1,7 @@
 // src/Components/Chatbot/ChatWidget.jsx
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle, X, ChevronRight, RotateCcw, Loader2
 } from "lucide-react";
@@ -85,7 +85,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* ========== Floating bubble button (light theme) ========== */}
-      <motion.button
+      <Motion.button
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Fechar chat" : "Abrir chat"}
         whileHover={{ scale: 1.06 }}
@@ -107,7 +107,7 @@ export default function ChatWidget() {
       >
         <AnimatePresence mode="wait" initial={false}>
           {open ? (
-            <motion.span
+            <Motion.span
               key="x"
               initial={{ rotate: -90, opacity: 0, scale: 0.9 }}
               animate={{ rotate: 0, opacity: 1, scale: 1 }}
@@ -116,9 +116,9 @@ export default function ChatWidget() {
               className="grid place-items-center"
             >
               <X className="h-7 w-7" />
-            </motion.span>
+            </Motion.span>
           ) : (
-            <motion.span
+            <Motion.span
               key="msg"
               initial={{ rotate: -6, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
@@ -128,15 +128,15 @@ export default function ChatWidget() {
             >
               <MessageCircle className="h-8 w-8" />
               <span className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(rgba(0,0,0,0.08),transparent_60%)] blur-md" />
-            </motion.span>
+            </Motion.span>
           )}
         </AnimatePresence>
-      </motion.button>
+      </Motion.button>
 
       {/* ========== Chat panel (opens to the LEFT of the bubble, above it) ========== */}
       <AnimatePresence>
         {open && (
-          <motion.aside
+          <Motion.aside
             key="panel"
             variants={panelVariants}
             initial="hidden"
@@ -194,7 +194,7 @@ export default function ChatWidget() {
 
               {!loading && !err && node && (
                 <>
-                  <motion.div
+                  <Motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.22 }}
@@ -206,11 +206,11 @@ export default function ChatWidget() {
                     <div className="rounded-2xl rounded-tl-sm bg-neutral-100 text-neutral-800 px-4 py-2 text-sm shadow-sm">
                       {node.message}
                     </div>
-                  </motion.div>
+                  </Motion.div>
 
                   <div className="grid gap-2">
                     {node.options?.map((opt, i) => (
-                      <motion.button
+                      <Motion.button
                         key={i}
                         custom={i}
                         variants={optionVariants}
@@ -229,7 +229,7 @@ export default function ChatWidget() {
                       >
                         <span className="truncate">{opt.label}</span>
                         <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-700" />
-                      </motion.button>
+                      </Motion.button>
                     ))}
                   </div>
                 </>
@@ -248,7 +248,7 @@ export default function ChatWidget() {
               </button>
               <span className="text-[11px] text-neutral-500">Marima • Assistente Virtual</span>
             </div>
-          </motion.aside>
+          </Motion.aside>
         )}
       </AnimatePresence>
 

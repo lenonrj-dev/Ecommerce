@@ -1,7 +1,7 @@
 // frontend/src/Components/CookieBanner.jsx
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion as Motion, useReducedMotion } from "framer-motion";
 import { ShopContext } from "../Context/ShopContext";
 
 const STORAGE_KEY = "cookieConsentAccepted"; // "true" quando aceito
@@ -37,14 +37,16 @@ export default function CookieBanner() {
   const accept = () => {
     try {
       localStorage.setItem(STORAGE_KEY, "true");
-    } catch {}
+    } catch (error) {
+      console.error("Erro ao salvar consentimento de cookies:", error);
+    }
     close();
   };
 
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <Motion.div
           key="cookie-dialog"
           role="dialog"
           aria-modal="true"
@@ -117,7 +119,7 @@ export default function CookieBanner() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );

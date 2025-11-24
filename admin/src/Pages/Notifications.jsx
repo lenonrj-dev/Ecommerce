@@ -1,21 +1,21 @@
 // src/pages/Notifications.jsx
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 /* ---------- Modal genérico ---------- */
 function Modal({ open, onClose, title, children }) {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <Motion.div
           className="fixed inset-0 z-[70] grid place-items-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-          <motion.div
+          <Motion.div
             className="relative w-full max-w-5xl rounded-2xl bg-white p-6 shadow-2xl"
             initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -28,8 +28,8 @@ function Modal({ open, onClose, title, children }) {
               </button>
             </div>
             <div className="mt-4">{children}</div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );
@@ -372,14 +372,14 @@ export default function Notifications() {
 
   return (
     <main className="p-6 mt-10 md:p-10 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen text-gray-900">
-      <motion.h1
+      <Motion.h1
         className="text-2xl md:text-4xl font-extrabold mb-6 tracking-tight text-gray-800"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         Notificações
-      </motion.h1>
+      </Motion.h1>
 
       {/* RESUMO + CONTROLES DE PERÍODO */}
       <section className="mb-6">

@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 
 /**
  * SocialGrid (imagens maiores)
@@ -69,7 +69,7 @@ export default function SocialGrid({ username, images = [], ctaHref = "#" }) {
         </div>
 
         {/* Grid de imagens (menos colunas => cards maiores) */}
-        <motion.div
+        <Motion.div
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -91,7 +91,7 @@ export default function SocialGrid({ username, images = [], ctaHref = "#" }) {
               typeof src === "string" ? src : src?.src || src?.image || src?.url || "";
 
             return (
-              <motion.figure
+              <Motion.figure
                 key={i}
                 variants={item}
                 role="listitem"
@@ -139,10 +139,10 @@ export default function SocialGrid({ username, images = [], ctaHref = "#" }) {
                     focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white
                   "
                 />
-              </motion.figure>
+              </Motion.figure>
             );
           })}
-        </motion.div>
+        </Motion.div>
       </div>
     </section>
   );
