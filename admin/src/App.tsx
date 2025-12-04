@@ -13,7 +13,7 @@ import Feedback from './Pages/Feedback';
 import Notifications from './Pages/Notifications';
 import axios from 'axios';
 
-export const backendUrl = import.meta.env.VITE_BACKEND_URL;
+export const backendUrl = import.meta.env.VITE_BACKEND_URL || '/api';
 export const currency = ' R$  ';
 const ADMIN_SESSION_TTL_MS = 60 * 60 * 1000;
 const ADMIN_TOKEN_KEY = 'admin_token';

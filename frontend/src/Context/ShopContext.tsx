@@ -85,7 +85,7 @@ const normalizeProductPricing = (product: Partial<Product> = {}): Product => {
 
 const ShopContextProvider = ({ children }: { children: ReactNode }) => {
   const currency = "R$";
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "/api";
 
   // ------------------ auth ------------------
   const persisted = readPersistedAuth();
