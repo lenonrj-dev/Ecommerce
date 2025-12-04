@@ -77,8 +77,60 @@ app.use('/api/product', productRouter);
 app.use('/api/contact', contactRouter);
 app.use('/api/chat', chatRouter);
 
+const dashboardHtml = `
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Marima API - Status</title>
+    <style>
+      body { font-family: Arial, sans-serif; background:#0f172a; color:#e2e8f0; margin:0; padding:32px; }
+      .card { max-width: 720px; margin:0 auto; background:#111827; border:1px solid #1f2937; border-radius:16px; padding:24px; box-shadow:0 10px 40px rgba(0,0,0,0.25); }
+      h1 { margin:0 0 8px 0; font-size:24px; }
+      p { margin:6px 0; color:#cbd5e1; }
+      .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-top:16px; }
+      .pill { padding:10px 12px; border-radius:12px; background:#0b111f; border:1px solid #1f2937; }
+      a { color:#38bdf8; text-decoration:none; }
+      a:hover { text-decoration:underline; }
+      code { background:#0b111f; padding:2px 6px; border-radius:6px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Marima API</h1>
+      <p>Status: <strong>online</strong></p>
+      <div class="grid">
+        <div class="pill">
+          <strong>Health</strong><br/>
+          <a href="/api/status">/api/status</a>
+        </div>
+        <div class="pill">
+          <strong>Produtos</strong><br/>
+          <a href="/api/product/list">/api/product/list</a>
+        </div>
+        <div class="pill">
+          <strong>Comentários (sample)</strong><br/>
+          <a href="/api/comment/fallback-macacao?limit=1">/api/comment/fallback-macacao?limit=1</a>
+        </div>
+      </div>
+      <p style="margin-top:18px;font-size:13px;">Env: <code>${process.env.VERCEL_ENV || process.env.NODE_ENV || 'unknown'}</code></p>
+    </div>
+  </body>
+</html>
+`;
+
 app.get('/', (_req: Request, res: Response) => {
-  res.send('Olá');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(dashboardHtml);
+});
+
+app.get('/api/status', (_req: Request, res: Response) => {
+  res.json({
+    ok: true,
+    env: process.env.VERCEL_ENV || process.env.NODE_ENV || 'unknown',
+    time: new Date().toISOString(),
+  });
 });
 
 export const initServices = async () => {
