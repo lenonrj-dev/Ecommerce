@@ -2,27 +2,27 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/vite.config.ts",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "frontend/dist" }
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build@2.0.0",
+      "config": { "distDir": "dist" }
     },
     {
-      "src": "admin/vite.config.ts",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "admin/dist" }
+      "src": "admin/package.json",
+      "use": "@vercel/static-build@2.0.0",
+      "config": { "distDir": "dist" }
     },
     {
       "src": "api/index.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node@3.0.0"
     }
   ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.ts" },
-    { "source": "/admin/assets/(.*)", "destination": "/admin/dist/assets/$1" },
-    { "source": "/admin", "destination": "/admin/dist/index.html" },
-    { "source": "/admin/(.*)", "destination": "/admin/dist/index.html" },
-    { "source": "/assets/(.*)", "destination": "/frontend/dist/assets/$1" },
-    { "source": "/", "destination": "/frontend/dist/index.html" },
-    { "source": "/(.*)", "destination": "/frontend/dist/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.ts" },
+    { "src": "/admin/assets/(.*)", "dest": "/admin/dist/assets/$1" },
+    { "src": "/admin", "dest": "/admin/dist/index.html" },
+    { "src": "/admin/(.*)", "dest": "/admin/dist/index.html" },
+    { "src": "/assets/(.*)", "dest": "/frontend/dist/assets/$1" },
+    { "src": "/", "dest": "/frontend/dist/index.html" },
+    { "src": "/(.*)", "dest": "/frontend/dist/index.html" }
   ]
 }
