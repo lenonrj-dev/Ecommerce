@@ -17,22 +17,39 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ---- CORS (somente domínios permitidos) ----
+const extraEnvOrigins = (process.env.BACKEND_ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
 const RAW_ALLOWED_ORIGINS = [
   'https://www.usemarima.com',
+  'https://usemarima.com',
   'http://localhost:3333',
   'http://localhost:5173',
-];
-const ALLOWED_ORIGINS = new Set(
-  RAW_ALLOWED_ORIGINS.map(o => String(o).replace(/\/$/, ''))
-);
+  process.env.FRONTEND_URL || '',
+  process.env.ADMIN_URL || '',
+  ...extraEnvOrigins,
+].filter(Boolean);
+
+const normalizeOrigin = (o: string) => String(o || '').replace(/\/$/, '');
+const ALLOWED_ORIGINS = new Set(RAW_ALLOWED_ORIGINS.map(normalizeOrigin));
+
+const isAllowedOrigin = (origin = '') => {
+  const normalized = normalizeOrigin(origin);
+  if (ALLOWED_ORIGINS.has(normalized)) return true;
+  // permite *.vercel.app
+  if (/\.vercel\.app$/i.test(new URL(origin).hostname)) return true;
+  return false;
+};
 
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    // normaliza (remove barra final)
-    const normalized = (origin || '').replace(/\/$/, '');
     // permite ferramentas server-to-server (origin ausente) sem abrir para outros domínios
     if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.has(normalized)) return callback(null, true);
+    try {
+      if (isAllowedOrigin(origin)) return callback(null, true);
+    } catch { /* ignore parse error */ }
     return callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
