@@ -110,43 +110,43 @@ const Home = () => {
             title: "Regata Casual",
             href: "/casual?type=Regata",
             image:
-              "https://res.cloudinary.com/diwvlsgsw/image/upload/v1759104133/products/qtz88ket6enwfbz8rrkq.png",
+              "https://res.cloudinary.com/dxeooztro/image/upload/v1764855827/products/a5kjb0rlu98koit3ffzo.png",
           },
           {
             title: "Croped Casual",
             href: "/casual?type=Croped",
             image:
-              "https://res.cloudinary.com/diwvlsgsw/image/upload/v1759103976/products/jzro34dkwrl8uzasltay.png",
+              "https://res.cloudinary.com/dxeooztro/image/upload/v1764855747/products/mvekllxqz52g2edao9ns.png",
           },
           {
             title: "Short Casual",
             href: "/casual?type=Short",
             image:
-              "https://res.cloudinary.com/diwvlsgsw/image/upload/v1759103640/products/i2vybtcif7wv5lidc3io.png",
+              "https://res.cloudinary.com/dxeooztro/image/upload/v1764855534/products/mp8y2p2opjiowzu3bfaq.png",
           },
           {
             title: "Leggings Fitness",
             href: "/fitness?type=Calça",
             image:
-              "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758996380/products/ingwa51estpgozpxu0di.png",
+              "https://res.cloudinary.com/dxeooztro/image/upload/v1764855991/products/csbtyacmeqjuy5j3pmhf.png",
           },
           {
             title: "Tops Fitness",
             href: "/fitness?type=Top",
             image:
-              "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758984102/products/bb0f2gf5ijwvf8xfpghr.png",
+              "https://res.cloudinary.com/dxeooztro/image/upload/v1764856074/products/gwlegpjshwb5s17i1ppf.png",
           },
           {
             title: "Macacões Fitness",
             href: "/fitness?type=Macacão",
             image:
-              "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758996574/products/fejyhuv2tbopz42k37ed.png",
+              "https://res.cloudinary.com/dxeooztro/image/upload/v1764856237/products/p59d2ei7qeree4mndk9u.png",
           },
           {
             title: "Shorts Fitness",
             href: "/fitness?type=Short",
             image:
-              "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758994116/products/ma7hf2kw3wxumaev1yrm.png",
+              "https://res.cloudinary.com/dxeooztro/image/upload/v1764856168/products/qy8fuhijwphzusyfqxhl.png",
           },
         ]}
       />

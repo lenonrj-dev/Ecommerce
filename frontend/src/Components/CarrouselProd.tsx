@@ -11,7 +11,7 @@ const CATEGORIES = [
     description:
       "Modelagem estruturada que abraça cada curva e acompanha qualquer treino ou viagem.",
     image:
-      "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758997231/products/b1n65psbkjtwcd0olyan.png",
+      "https://res.cloudinary.com/dxeooztro/image/upload/v1764856237/products/p59d2ei7qeree4mndk9u.png",
     href: "/outlet?type=Macac%C3%A3o",
     highlight: "Best seller",
   },
@@ -21,7 +21,7 @@ const CATEGORIES = [
     description:
       "Alças inteligentes e tecidos com toque frio para treinar sem distrações.",
     image:
-      "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758992784/products/j1f5lqpcq5wetgppnhln.png",
+      "https://res.cloudinary.com/dxeooztro/image/upload/v1764856047/products/g2ugnygrhoifm1rgxkjg.png",
     href: "/fitness?type=Top",
     highlight: "Novidades",
   },
@@ -31,7 +31,7 @@ const CATEGORIES = [
     description:
       "Cintura alta, zero transparência e compressão na medida certa para o dia todo.",
     image:
-      "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758993368/products/cxhfcgf51fqadns3szs3.png",
+      "https://res.cloudinary.com/dxeooztro/image/upload/v1764856106/products/khzextadihajlzgrlv6y.png",
     href: "/fitness?type=Cal%C3%A7a",
     highlight: "Favoritos do público",
   },
@@ -41,7 +41,7 @@ const CATEGORIES = [
     description:
       "Perfeitos para corridas ou looks urbanos. Tecidos leves e bolsos estratégicos.",
     image:
-      "https://res.cloudinary.com/diwvlsgsw/image/upload/v1758993057/products/zaf2phwmnqxie65cixgn.png",
+      "https://res.cloudinary.com/dxeooztro/image/upload/v1764856143/products/ppptlwjiporell5injx5.png",
     href: "/outlet?type=Short",
     highlight: "Novo drop",
   },
@@ -51,7 +51,7 @@ const CATEGORIES = [
     description:
       "Regatas, croppeds e camadas leves para compor looks confortáveis com informação de moda.",
     image:
-      "https://res.cloudinary.com/diwvlsgsw/image/upload/v1759103821/products/t3qnorxtkrmgfhfgh8pg.png",
+      "https://res.cloudinary.com/dxeooztro/image/upload/v1764855747/products/mvekllxqz52g2edao9ns.png",
     href: "/casual",
     highlight: "Limited edition",
   },
