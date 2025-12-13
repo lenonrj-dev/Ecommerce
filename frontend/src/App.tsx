@@ -91,17 +91,17 @@ export default function App() {
               <Route
                 path="/pos-pagamento/cartao"
                 element={
-                  <ProtectedRoute>
+                  
                     <PaymentCard />
-                  </ProtectedRoute>
+                  
                 }
               />
               <Route
                 path="/pos-pagamento/boleto"
                 element={
-                  <ProtectedRoute>
+                  
                     <PaymentBoleto />
-                  </ProtectedRoute>
+                  
                 }
               />
 
