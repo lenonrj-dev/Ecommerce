@@ -1,4 +1,4 @@
-﻿import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { ShoppingBag, Heart } from "lucide-react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
@@ -142,49 +142,6 @@ const Product = () => {
     }
   };
 
-  const goToSizeLink = (tamanho) => {
-    const link = sizeLinks?.[tamanho];
-    if (!link) return;
-    if (!isLoggedIn) {
-      redirectToLogin();
-      return;
-    }
-    if (normalizedProduct) {
-      addToCart(normalizedProduct, { size: tamanho || "UNICO" });
-    }
-    setSelectedSize(tamanho);
-    notifyAbandoned(tamanho, link);
-    window.location.assign(link);
-  };
-
-  const handleBuy = (e) => {
-    e.preventDefault();
-    if (!isLoggedIn) {
-      redirectToLogin();
-      return;
-    }
-    const normalizedSize = selectedSize || sizeChoices[0];
-    if (normalizedSize && sizeLinks?.[normalizedSize]) {
-      if (normalizedProduct) {
-        addToCart(normalizedProduct, { size: normalizedSize });
-      }
-      notifyAbandoned(normalizedSize, sizeLinks[normalizedSize]);
-      window.location.assign(sizeLinks[normalizedSize]);
-      return;
-    }
-    const entries = Object.entries(sizeLinks);
-    if (entries.length === 1) {
-      const [tamanho, link] = entries[0];
-      if (normalizedProduct) {
-        addToCart(normalizedProduct, { size: tamanho });
-      }
-      notifyAbandoned(tamanho, link);
-      window.location.assign(link);
-      return;
-    }
-    setOpenSizeModal(true);
-  };
-
   const formatBRL = (value) => Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const basePrice = Number(product?.price) || 0;
   const pixValue = typeof product?.pixPrice === "number" && product.pixPrice >= 0 ? product.pixPrice : basePrice;
@@ -213,6 +170,46 @@ const Product = () => {
         : null,
     [product, basePrice, pixValue, installmentsQty, installmentValue]
   );
+
+  const goToSizeLink = (tamanho) => {
+    const link = sizeLinks?.[tamanho];
+    if (!link) return;
+
+    if (normalizedProduct && isLoggedIn) {
+      addToCart(normalizedProduct, { size: tamanho || "UNICO" });
+    }
+
+    setSelectedSize(tamanho);
+    notifyAbandoned(tamanho, link);
+    window.location.assign(link);
+  };
+
+  const handleBuy = (e) => {
+    e.preventDefault();
+
+    const normalizedSize = selectedSize || sizeChoices[0];
+    if (normalizedSize && sizeLinks?.[normalizedSize]) {
+      if (normalizedProduct && isLoggedIn) {
+        addToCart(normalizedProduct, { size: normalizedSize });
+      }
+      notifyAbandoned(normalizedSize, sizeLinks[normalizedSize]);
+      window.location.assign(sizeLinks[normalizedSize]);
+      return;
+    }
+
+    const entries = Object.entries(sizeLinks);
+    if (entries.length === 1) {
+      const [tamanho, link] = entries[0];
+      if (normalizedProduct && isLoggedIn) {
+        addToCart(normalizedProduct, { size: tamanho });
+      }
+      notifyAbandoned(tamanho, link);
+      window.location.assign(link);
+      return;
+    }
+
+    setOpenSizeModal(true);
+  };
 
   const cartMatch = useMemo(() => {
     if (!normalizedProduct) return null;
