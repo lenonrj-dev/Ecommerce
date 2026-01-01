@@ -66,7 +66,7 @@ const Footer = () => {
       >
         <hr className="border-t border-gray-300" />
         <p className="text-center text-xs sm:text-sm py-5 text-gray-500">
-          © 2025 Marima — Todos os Direitos Reservados
+          © 2026 Marima — Todos os Direitos Reservados
         </p>
       </Motion.div>
     </footer>
