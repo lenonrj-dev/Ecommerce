@@ -23,6 +23,8 @@ const extraEnvOrigins = (process.env.BACKEND_ALLOWED_ORIGINS || '')
   .filter(Boolean);
 
 const RAW_ALLOWED_ORIGINS = [
+  'https://www.usemarima.com.br',
+  'https://usemarima.com.br',
   'https://www.usemarima.com',
   'https://usemarima.com',
   'http://localhost:3333',
