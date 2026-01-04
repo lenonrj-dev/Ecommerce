@@ -4,6 +4,8 @@ import App from './App';
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import ShopContextProvider from './Context/ShopContext';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Dispara PageView a cada mudança de rota (SPA)
 function PixelRouteTracker() {
@@ -36,6 +38,8 @@ createRoot(rootElement).render(
     <ShopContextProvider>
       <PixelRouteTracker />
       <App />
+      <Analytics />
+      <SpeedInsights />
     </ShopContextProvider>
   </BrowserRouter>
 );
