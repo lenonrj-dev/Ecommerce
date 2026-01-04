@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   addProduct,
   updateProduct,
+  resolveProduct,
   listProducts,
   removeProduct,
   toggleVisibility,
@@ -21,6 +22,7 @@ const router = Router();
 
 // público
 router.get("/list", listProducts);
+router.get("/resolve/:slugOrId", resolveProduct);
 
 // admin: add/update aceitando image1..image4
 const imagesFields = upload.fields([

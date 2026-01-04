@@ -10,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 import axios, { type AxiosInstance } from "axios";
 import type { Address, CartItem, Product, ShopContextValue, User } from "../types";
+import { getProductUrl } from "../utils/productUrl";
 
 type PersistedAuth = { token: string | null; expiresAt: number };
 
@@ -348,6 +349,7 @@ const ShopContextProvider = ({ children }: { children: ReactNode }) => {
               : item
           );
         }
+        const productHref = getProductUrl(product);
         const newEntry: CartItem = {
           uid,
           productId,
@@ -359,7 +361,10 @@ const ShopContextProvider = ({ children }: { children: ReactNode }) => {
           size: options.size || null,
           variantId: options.variantId || null,
           quantity: options.quantity && options.quantity > 0 ? options.quantity : 1,
-          href: product._id ? `/product/${product._id}` : product.link || options.href || "#",
+          href:
+            productHref !== "#"
+              ? productHref
+              : product.link || options.href || "#",
           yampiLink: options.yampiLink || product.yampiLink || "",
         };
         return [...prev, newEntry];

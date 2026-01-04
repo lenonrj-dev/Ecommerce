@@ -4,6 +4,7 @@ import { motion as Motion, AnimatePresence } from "framer-motion";
 import HeartButton from "./ui/HeartButton";
 import { ShopContext } from "../Context/ShopContext";
 import { toast } from "react-toastify";
+import { getProductUrl } from "../utils/productUrl";
 
 const CartPlusIcon = (props) => (
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" {...props}>
@@ -122,6 +123,10 @@ const ProductItem = ({ product: productProp, className = "", ...legacyProps }) =
   } = data;
   const id = _id || legacyId;
   const navigate = useNavigate();
+  const productUrl = useMemo(
+    () => getProductUrl({ ...data, _id: id, name }),
+    [data, id, name]
+  );
 
   const images = useMemo(() => {
     if (Array.isArray(image)) return image.filter(Boolean);
@@ -173,8 +178,8 @@ const ProductItem = ({ product: productProp, className = "", ...legacyProps }) =
   );
 
   const handleCardClick = () => {
-    if (!id) return;
-    navigate(`/product/${id}`);
+    if (!id || productUrl === "#") return;
+    navigate(productUrl);
   };
 
   const handleKeyDown = (e) => {
@@ -335,7 +340,7 @@ const ProductItem = ({ product: productProp, className = "", ...legacyProps }) =
 
       <Link
         className="pt-3 block text-sm font-medium text-neutral-900 hover:underline"
-        to={`/product/${id}`}
+        to={productUrl}
         onClick={(e) => e.stopPropagation()}
       >
         {name}

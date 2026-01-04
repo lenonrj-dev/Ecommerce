@@ -6,6 +6,8 @@ import { ShopContext } from "../Context/ShopContext";
 import RelatedProducts from "../Components/RelatedProducts";
 import ProductComments from "../Components/ProductComments";
 import ProductRatingSummary from "../Components/ProductRatingSummary";
+import SeoHead from "../Components/seo/SeoHead";
+import { extractProductIdFromSlug, getProductUrl } from "../utils/productUrl";
 
 const getAvailableSizes = (product) => {
   if (Array.isArray(product?.variants) && product.variants.length) {
@@ -70,7 +72,9 @@ const Modal = ({ open, onClose, title, children }) => (
 );
 
 const Product = () => {
-  const { productId } = useParams();
+  const { productId, slug } = useParams();
+  const slugOrId = productId || slug || "";
+  const resolvedId = useMemo(() => extractProductIdFromSlug(slugOrId), [slugOrId]);
   const navigate = useNavigate();
   const location = useLocation();
   const { products, backendUrl, user, isLoggedIn, isFavorite, toggleFavorite, addToCart, cartItems } = useContext(ShopContext);
@@ -79,14 +83,36 @@ const Product = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [openSizeModal, setOpenSizeModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState("UNICO");
+  const canonicalPath = product ? getProductUrl(product) : "";
+  const canonicalUrl =
+    product && canonicalPath && canonicalPath !== "#"
+      ? `https://www.usemarima.com${canonicalPath}`
+      : "";
+  const seoDescription = product?.description?.trim() || "";
 
   useEffect(() => {
-    const found = (products || []).find((p) => p._id === productId);
-    if (found) {
-      setProduct(found);
-      setActiveIndex(0);
+    if (!slugOrId) {
+      setProduct(null);
+      return;
     }
-  }, [productId, products]);
+
+    const byId = resolvedId
+      ? (products || []).find((p) => String(p._id) === resolvedId)
+      : null;
+    const bySlug = (products || []).find((p) => p.slug === slugOrId);
+    const found = byId || bySlug || null;
+
+    setProduct(found);
+    if (found) setActiveIndex(0);
+  }, [products, resolvedId, slugOrId]);
+
+  useEffect(() => {
+    if (!product) return;
+    const targetPath = getProductUrl(product);
+    if (targetPath !== "#" && location.pathname !== targetPath) {
+      navigate(targetPath, { replace: true });
+    }
+  }, [product, location.pathname, navigate]);
 
   const images = useMemo(() => {
     if (Array.isArray(product?.image)) return product.image;
@@ -244,7 +270,13 @@ const Product = () => {
   }
 
   return (
-    <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="pt-12 px-6 md:px-12 max-w-screen-xl mx-auto text-lg">
+    <>
+      <SeoHead
+        title={product.name}
+        description={seoDescription}
+        canonical={canonicalUrl}
+      />
+      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="pt-12 px-6 md:px-12 max-w-screen-xl mx-auto text-lg">
       <div className="flex flex-col lg:flex-row gap-14">
         <div className="flex flex-col lg:flex-row gap-6 w-full lg:w-1/2">
           <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] w-full lg:w-28 flex-none">
@@ -311,7 +343,7 @@ const Product = () => {
                 {combineProducts.map((prod) => (
                   <Link
                     key={prod._id}
-                    to={`/product/${prod._id}`}
+                    to={getProductUrl(prod)}
                     className="group flex gap-3 rounded-xl border border-gray-100 p-3 transition hover:border-gray-200 hover:shadow-sm"
                   >
                     <div className="h-16 w-16 overflow-hidden rounded-lg bg-gray-100">
@@ -418,7 +450,8 @@ const Product = () => {
           ))}
         </div>
       </Modal>
-    </Motion.div>
+      </Motion.div>
+    </>
   );
 };
 

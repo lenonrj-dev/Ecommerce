@@ -4,6 +4,7 @@ import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { ShopContext } from "../Context/ShopContext";
+import { getProductUrl } from "../utils/productUrl";
 
 const formatCurrency = (value) =>
   Number(value || 0).toLocaleString("pt-BR", {
@@ -212,49 +213,52 @@ const MiniCart = ({ open, onClose }) => {
                     </h3>
                   </div>
                   <div className="space-y-3">
-                    {recommendations.map((product) => (
-                      <div
-                        key={product._id}
-                        className="flex items-center gap-3 rounded-2xl border border-neutral-100 p-3"
-                      >
-                        <Link
-                          to={`/product/${product._id}`}
-                          onClick={onClose}
-                          className="block h-16 w-16 overflow-hidden rounded-xl bg-neutral-100"
+                    {recommendations.map((product) => {
+                      const productUrl = getProductUrl(product);
+                      return (
+                        <div
+                          key={product._id}
+                          className="flex items-center gap-3 rounded-2xl border border-neutral-100 p-3"
                         >
-                          <img
-                            src={product.image?.[0]}
-                            alt={product.name}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                        </Link>
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-neutral-900">
-                            {product.name}
-                          </p>
-                          <p className="text-xs text-neutral-500">
-                            {formatCurrency(product.pixPrice)} no Pix
-                          </p>
-                          <div className="mt-2 flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => addToCart(product)}
-                              className="rounded-full border border-neutral-900 px-3 py-1 text-xs font-semibold text-neutral-900 transition hover:bg-neutral-900 hover:text-white"
-                            >
-                              Adicionar
-                            </button>
-                            <Link
-                              to={`/product/${product._id}`}
-                              onClick={onClose}
-                              className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50"
-                            >
-                              Ver
-                            </Link>
+                          <Link
+                            to={productUrl}
+                            onClick={onClose}
+                            className="block h-16 w-16 overflow-hidden rounded-xl bg-neutral-100"
+                          >
+                            <img
+                              src={product.image?.[0]}
+                              alt={product.name}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                            />
+                          </Link>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-neutral-900">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-neutral-500">
+                              {formatCurrency(product.pixPrice)} no Pix
+                            </p>
+                            <div className="mt-2 flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => addToCart(product)}
+                                className="rounded-full border border-neutral-900 px-3 py-1 text-xs font-semibold text-neutral-900 transition hover:bg-neutral-900 hover:text-white"
+                              >
+                                Adicionar
+                              </button>
+                              <Link
+                                to={productUrl}
+                                onClick={onClose}
+                                className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50"
+                              >
+                                Ver
+                              </Link>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

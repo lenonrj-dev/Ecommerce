@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
 import ProductRatingSummary from "./ProductRatingSummary";
+import { getProductUrl } from "../utils/productUrl";
 
 const COLOR_MAP = {
   preto: { label: "Preto", hex: "#111111" },
@@ -177,7 +178,7 @@ const buildGroupsFromProducts = (products = []) => {
       installments: product.installments,
       category: product.category,
       subCategory: product.subCategory,
-      link: product._id ? `/product/${product._id}` : "/outlet",
+      link: product._id ? getProductUrl(product) : "/outlet",
     });
   });
 
@@ -424,7 +425,7 @@ export default function Banner() {
                   backendUrl={backendUrl}
                 />
                 <Link
-                  to={`/product/${currentVariation.id || currentVariation._id}`}
+                  to={currentVariation.link || "/outlet"}
                   className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500 hover:text-neutral-900"
                 >
                   Ver avaliações completas →

@@ -30,6 +30,7 @@ const MeasurementSchema = new mongoose.Schema(
 const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    slug: { type: String, trim: true },
     description: { type: String, default: "" },
 
     // preço cheio do produto
@@ -84,5 +85,7 @@ const ProductSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+ProductSchema.index({ slug: 1 }, { unique: true, sparse: true });
 
 export default mongoose.model("Product", ProductSchema);

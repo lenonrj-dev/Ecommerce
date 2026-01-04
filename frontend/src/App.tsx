@@ -86,6 +86,7 @@ export default function App() {
 
               {/* Produto público */}
               <Route path="/product/:productId" element={<Product />} />
+              <Route path="/product/:slug" element={<Product />} />
 
               {/* Pós-pagamento (protegidos) */}
               <Route

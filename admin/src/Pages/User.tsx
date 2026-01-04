@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { getProductUrl } from "../utils/productUrl";
 
 /* ---------- Modal genérico ---------- */
 function Modal({ open, onClose, title, children }) {
@@ -279,10 +280,11 @@ export default function User({ token }) {
                         );
                       }
                       const img = p.image?.[0] || p.thumbnail || "";
+                      const productUrl = getProductUrl(p);
                       return (
                         <Link
                           key={favId}
-                          to={`/product/${p._id}`}
+                          to={productUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="group border rounded-lg p-3 bg-white hover:bg-gray-50 transition flex gap-3"

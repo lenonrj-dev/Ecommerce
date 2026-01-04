@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { ShopContext } from "../../Context/ShopContext";
 import { Link } from "react-router-dom";
 import HeartButton from "../ui/HeartButton";
+import { getProductUrl } from "../../utils/productUrl";
 
 const currencyBRL = (v) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v || 0));
@@ -89,11 +90,12 @@ export default function Favoritos() {
             "";
           const category = p.category || "Coleção";
           const price = currencyBRL(p.price);
+          const productUrl = getProductUrl(p);
 
           return (
             <Link
               key={p._id || p.id}
-              to={`/product/${p._id || p.id}`}
+              to={productUrl}
               className="relative bg-white rounded-xl overflow-hidden border border-zinc-200 hover:border-zinc-400 transition"
             >
               <div className="relative w-full aspect-[3/4] bg-zinc-50">

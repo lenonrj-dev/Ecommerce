@@ -8,6 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "server": "nodemon --watch . --ext ts --exec \"tsx server.ts\"",
+    "backfill:product-slugs": "tsx scripts/backfillProductSlugs.ts",
     "test": "vitest run --coverage"
   },
   "keywords": [],

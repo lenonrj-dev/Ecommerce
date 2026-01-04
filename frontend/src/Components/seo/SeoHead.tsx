@@ -1,9 +1,10 @@
 import { Helmet } from "react-helmet";
-export default function SeoHead({ title, description, openGraph, jsonLd = [] }) {
+export default function SeoHead({ title, description, canonical, openGraph, jsonLd = [] }) {
   return (
     <Helmet>
       <title>{title}</title>
       {description && <meta name="description" content={description} />}
+      {canonical && <link rel="canonical" href={canonical} />}
       {openGraph?.title && <meta property="og:title" content={openGraph.title} />}
       {openGraph?.description && (
         <meta property="og:description" content={openGraph.description} />

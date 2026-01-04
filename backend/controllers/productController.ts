@@ -4,6 +4,7 @@ import Product from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs/promises";
 import mongoose from "mongoose";
+import { buildProductSlug, extractObjectIdFromSlug } from "../utils/productSlug.js";
 
 /* ------------------------------------------------------------------ */
 /*                                Utils                                */
@@ -220,6 +221,12 @@ export const addProduct = async (req, res) => {
       combineWith,
     });
 
+    const slug = buildProductSlug(doc.name, doc._id);
+    if (slug && doc.slug !== slug) {
+      doc.slug = slug;
+      await doc.save();
+    }
+
     res.status(201).json({ success: true, product: doc });
   } catch (e) {
     console.error("addProduct error:", e);
@@ -236,6 +243,7 @@ export const updateProduct = async (req, res) => {
     delete raw._id;
 
     const doc = await Product.findById(id);
+    const originalName = doc?.name;
     if (!doc)
       return res
         .status(404)
@@ -361,6 +369,10 @@ export const updateProduct = async (req, res) => {
       doc.combineWith = parseCombineWith(raw.combineWith);
     }
 
+    if (!doc.slug || (typeof raw.name === "string" && doc.name !== originalName)) {
+      doc.slug = buildProductSlug(doc.name, doc._id);
+    }
+
     // ----- imagens (keep + novos uploads, ordem, dedup, max 4) -----
     const keepImages =
       typeof raw.keepImages !== "undefined"
@@ -403,7 +415,50 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-/** GET /api/product/list  (visíveis, não deletados) */
+/** GET /api/product/resolve/:slugOrId */
+export const resolveProduct = async (req, res) => {
+  try {
+    const { slugOrId } = req.params || {};
+    if (!slugOrId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Parâmetro inválido." });
+    }
+
+    const candidateId = extractObjectIdFromSlug(slugOrId);
+    let product = null;
+
+    if (candidateId && mongoose.Types.ObjectId.isValid(candidateId)) {
+      product = await Product.findById(candidateId).lean();
+    }
+
+    if (!product) {
+      product = await Product.findOne({ slug: slugOrId }).lean();
+    }
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Produto não encontrado" });
+    }
+
+    const canonicalSlug =
+      product.slug || buildProductSlug(product.name || "", product._id);
+
+    return res.json({
+      success: true,
+      product: { ...product, slug: canonicalSlug },
+      canonicalPath: canonicalSlug
+        ? `/product/${canonicalSlug}`
+        : `/product/${product._id}`,
+    });
+  } catch (e) {
+    console.error("resolveProduct error:", e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
+/** GET /api/product/list (visiveis, nao deletados) */
 export const listProducts = async (_req, res) => {
   try {
     const products = await Product.find({
