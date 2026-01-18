@@ -23,6 +23,7 @@ import Footer from "./Components/Footer";
 import GoogleLoader from "./Components/GoogleLoader";
 import CookieBanner from "./Components/CookieBanner";
 import ChatWidget from "./Components/Chatbot/ChatWidget";
+import TopInfoBar from "./Components/ui/TopInfoBar";
 
 import useNotifAnalytics from "./hooks/useNotifAnalytics";
 
@@ -69,6 +70,7 @@ export default function App() {
         ) : (
           <div className="px-4 sm:px-[5vw] md:px:[7vw] lg:px-[9vw]">
             <ToastContainer />
+            <TopInfoBar />
             <Navbar />
 
             <Routes>
