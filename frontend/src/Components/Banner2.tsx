@@ -1,11 +1,11 @@
 import React from "react";
 import { motion as Motion } from "framer-motion";
 const LEFT_URL =
-  "https://res.cloudinary.com/dwf2uc6ot/image/upload/v1763943983/Black_tjxfgs.svg";
+  "https://res.cloudinary.com/dpyrbbvjd/image/upload/v1768762185/bannermob_vjsect.png";
 const RIGHT_URL =
-  "https://res.cloudinary.com/dwf2uc6ot/image/upload/v1763943966/athleisu_qvmjw4.svg";
+  "https://res.cloudinary.com/dpyrbbvjd/image/upload/v1768762004/GAB08734_zx9g5g.png";
 const MOBILE_URL =
-  "https://res.cloudinary.com/dwf2uc6ot/image/upload/v1763943983/Black_tjxfgs.svg";
+  "https://res.cloudinary.com/dpyrbbvjd/image/upload/v1768761486/GAB08709_uhjggz.png";
 const zoomIn = {
   initial: { scale: 1.08, opacity: 0 },
   animate: {

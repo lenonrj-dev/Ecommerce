@@ -226,6 +226,7 @@ export default function Banner() {
   const currentVariation = currentGroup?.variations?.[currentVariantIndex];
 
   const variationKey = currentVariation?.id || currentGroup?.key;
+
   useEffect(() => {
     if (!variationKey) return;
     setHeroImageMap((prev) => {
