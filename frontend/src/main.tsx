@@ -7,7 +7,8 @@ import ShopContextProvider from './Context/ShopContext';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
-// Dispara PageView a cada mudança de rota (SPA)
+const SITE_URL = 'https://usemarima.com.br';
+
 function PixelRouteTracker() {
   const location = useLocation();
   const lastPathRef = useRef<string>('');
@@ -15,12 +16,28 @@ function PixelRouteTracker() {
   useEffect(() => {
     const path = location.pathname + location.search + location.hash;
 
-    // evita disparos duplicados imediatos em dev (ex.: StrictMode)
     if (lastPathRef.current === path) return;
     lastPathRef.current = path;
 
     if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
+    }
+
+    if (typeof document !== 'undefined') {
+      const canonicalHref =
+        SITE_URL + (location.pathname === '/' ? '/' : location.pathname);
+
+      let canonicalLink = document.querySelector(
+        'link[rel="canonical"]'
+      ) as HTMLLinkElement | null;
+
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+
+      canonicalLink.setAttribute('href', canonicalHref);
     }
   }, [location]);
 
@@ -30,7 +47,7 @@ function PixelRouteTracker() {
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  throw new Error("Root element not found");
+  throw new Error('Root element not found');
 }
 
 createRoot(rootElement).render(
