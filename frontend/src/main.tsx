@@ -9,6 +9,22 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const SITE_URL = 'https://usemarima.com.br';
 
+const DEFAULT_DESCRIPTION =
+  'Marima — Moda fitness e casual com peças selecionadas, caimento premium e envio para todo o Brasil. Confira lançamentos, básicos e outlet.';
+
+const ROUTE_DESCRIPTIONS: Record<string, string> = {
+  '/outlet':
+    'Outlet Marima: ofertas em moda fitness e casual por tempo limitado. Aproveite descontos, últimas unidades e novidades toda semana.',
+  '/casual':
+    'Casual Marima: peças versáteis e confortáveis para o dia a dia. Estilo minimalista, acabamento premium e caimento impecável.',
+  '/fitness':
+    'Fitness Marima: leggings, tops e conjuntos com alta sustentação. Conforto, performance e estilo para treinar com confiança.',
+  '/sobre':
+    'Sobre a Marima: conheça nossa história, propósito e padrões de qualidade. Moda que inspira com atenção aos detalhes.',
+  '/contato':
+    'Contato Marima: suporte, dúvidas sobre pedidos, trocas e parcerias. Fale com a gente e receba atendimento rápido.',
+};
+
 function PixelRouteTracker() {
   const location = useLocation();
   const lastPathRef = useRef<string>('');
@@ -38,6 +54,57 @@ function PixelRouteTracker() {
       }
 
       canonicalLink.setAttribute('href', canonicalHref);
+
+      const description =
+        ROUTE_DESCRIPTIONS[location.pathname] ?? DEFAULT_DESCRIPTION;
+
+      let metaDescription = document.querySelector(
+        'meta[name="description"]'
+      ) as HTMLMetaElement | null;
+
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        document.head.appendChild(metaDescription);
+      }
+
+      metaDescription.setAttribute('content', description);
+
+      let ogDescription = document.querySelector(
+        'meta[property="og:description"]'
+      ) as HTMLMetaElement | null;
+
+      if (!ogDescription) {
+        ogDescription = document.createElement('meta');
+        ogDescription.setAttribute('property', 'og:description');
+        document.head.appendChild(ogDescription);
+      }
+
+      ogDescription.setAttribute('content', description);
+
+      let twitterDescription = document.querySelector(
+        'meta[name="twitter:description"]'
+      ) as HTMLMetaElement | null;
+
+      if (!twitterDescription) {
+        twitterDescription = document.createElement('meta');
+        twitterDescription.setAttribute('name', 'twitter:description');
+        document.head.appendChild(twitterDescription);
+      }
+
+      twitterDescription.setAttribute('content', description);
+
+      let ogUrl = document.querySelector(
+        'meta[property="og:url"]'
+      ) as HTMLMetaElement | null;
+
+      if (!ogUrl) {
+        ogUrl = document.createElement('meta');
+        ogUrl.setAttribute('property', 'og:url');
+        document.head.appendChild(ogUrl);
+      }
+
+      ogUrl.setAttribute('content', canonicalHref);
     }
   }, [location]);
 
