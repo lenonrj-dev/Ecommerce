@@ -7,7 +7,7 @@ import ShopContextProvider from './Context/ShopContext';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
-const SITE_URL = 'https://usemarima.com.br';
+const SITE_URL = 'https://www.usemarima.com.br';
 
 const DEFAULT_DESCRIPTION =
   'Marima — Moda fitness e casual com peças selecionadas, caimento premium e envio para todo o Brasil. Confira lançamentos, básicos e outlet.';
